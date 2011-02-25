@@ -1,0 +1,17 @@
+name: MCBOB
+main: se.laeffe.mcbob.Mcbob
+version: 0.0.1
+commands:
+  chteam:
+    description: Changes team.
+    usage: |
+           /<command> [teamname] [playername]
+  teamhome:
+    description: Teleports to teamhome.
+    usage: |
+           /<command>
+  battle:
+    description: Sets or toggles battle state.
+    usage: |
+           /<command> [0|1]
+           
