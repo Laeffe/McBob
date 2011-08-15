@@ -2,14 +2,15 @@ package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
 
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 
 public class Team {
 	LinkedHashSet<Player> players = new LinkedHashSet<Player>();
 	String name = "";
-	private int cord;
 	private Area area;
 	private Flag flag;
+	private Chest chest;
 	private int score = 0;
 	
 	public Team(String name, Flag flag) {
@@ -52,5 +53,13 @@ public class Team {
 
 	public int getScore() {
 		return score;
+	}
+
+	public Chest getChest() {
+		return chest;
+	}
+
+	public void setChest(Chest chest) {
+		this.chest = chest;
 	}
 }

@@ -1,18 +1,20 @@
 package se.laeffe.mcbob;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class Flag {
-	private int type;
+	private Material type;
 	private Block block;
 	private Team team;
 	private boolean taken;
+	private long takenTime = 0;
 
-	public Flag(int type) {
-		this.type = type;
+	public Flag(Material material) {
+		this.type = material;
 	}
 
-	public int getType() {
+	public Material getType() {
 		return type;
 	}
 
@@ -38,6 +40,14 @@ public class Flag {
 
 	public void setTaken(boolean taken) {
 		this.taken = taken;
+	}
+
+	public long getTakenTime() {
+		return takenTime;
+	}
+
+	public void setTakenTime(long takenTime) {
+		this.takenTime = takenTime;
 	}
 
 }

@@ -22,7 +22,7 @@ public class Cuboid {
 		int y = location.getBlockY();
 		int z = location.getBlockZ();
 		
-		if(x >= xmin && x < xmax && y >= ymin && y < ymax && z >= zmin && z < zmax) {
+		if(x >= xmin && x <= xmax && y >= ymin && y <= ymax && z >= zmin && z <= zmax) {
 			return true;
 		}
 		

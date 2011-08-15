@@ -14,4 +14,15 @@ commands:
     description: Sets or toggles battle state.
     usage: |
            /<command> [0|1]
-           
+  setperiod:
+    description: Sets the period for build and battle modes. At least buildticks is required
+    usage: |
+           /<command> [buildticks] [battleticks]
+  settime:
+    description: Sets the time for build and battle modes. At least buildtime is required
+    usage: |
+           /<command> [buildticks] [battleticks]
+  rebuildbases:
+    description: Rebuild all bases
+    usage: |
+           /<command>

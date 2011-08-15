@@ -1,40 +1,27 @@
 package se.laeffe.mcbob;
 
-import java.io.File;
-
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Mcbob extends JavaPlugin {
-
 	private TeamHandler teamHandler;
 	private AreaHandler areaHandler;
 	private BuildHandler buildHandler;
 	private BattleHandler battleHandler;
 	private DeathHandler deathHandler;
 
-	public Mcbob(PluginLoader pluginLoader, Server instance,
-			PluginDescriptionFile desc, File folder, File plugin,
-			ClassLoader cLoader) {
-		super(pluginLoader, instance, desc, folder, plugin, cLoader);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void onDisable() {
 		System.out.println("Mcbob.onDisable()");
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -47,89 +34,174 @@ public class Mcbob extends JavaPlugin {
 		teamHandler = new TeamHandler(this);
 		deathHandler = new DeathHandler(this);
 		
+		areaHandler.init();
+		teamHandler.init();
+
+		registerCommands();
+		registerEvents();
+
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, battleHandler.get20TickTask(), 1, 20);
+	}
+
+	private void registerCommands() {
+		getCommand("chteam").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				return cmdChangeTeam(sender, args);
+			}
+		});
+
+		getCommand("teamhome").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				return cmdTeamHome(sender);
+			}
+		});
+		
+		getCommand("battle").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				return cmdBattle(sender, args);
+			}
+		});
+
+		getCommand("setperiod").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				return cmdSetPeriod(sender, args);
+			}
+		});
+		
+		getCommand("settime").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				return cmdSetTime(sender, args);
+			}
+		});
+		
+		getCommand("rebuildbases").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+		});
+	}
+
+	private void registerEvents() {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Type.PLAYER_JOIN, teamHandler, Priority.Normal, this);
 		pm.registerEvent(Type.PLAYER_QUIT, teamHandler, Priority.Normal, this);
 		pm.registerEvent(Type.PLAYER_RESPAWN, teamHandler, Priority.Normal, this);
-		pm.registerEvent(Type.PLAYER_COMMAND, teamHandler, Priority.Normal, this);
+//		pm.registerEvent(Type.PLAYER_COMMAND_PREPROCESS, teamHandler, Priority.Normal, this);
 		pm.registerEvent(Type.PLAYER_MOVE, areaHandler, Priority.Normal, this);
-//		pm.registerEvent(Type.BLOCK_CANBUILD, buildHandler, Priority.Normal, this);
+		// pm.registerEvent(Type.BLOCK_CANBUILD, buildHandler, Priority.Normal,
+		// this);
 		pm.registerEvent(Type.BLOCK_BREAK, buildHandler, Priority.Normal, this);
-		pm.registerEvent(Type.BLOCK_PLACED, buildHandler, Priority.Normal, this);
-		pm.registerEvent(Type.BLOCK_RIGHTCLICKED, battleHandler, Priority.Normal, this);
+		pm.registerEvent(Type.BLOCK_PLACE, buildHandler, Priority.Normal, this);
+		pm.registerEvent(Type.BLOCK_DAMAGE, battleHandler, Priority.Normal, this);
 		pm.registerEvent(Type.ENTITY_DEATH, deathHandler, Priority.Normal, this);
-		
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, battleHandler.getTask(), 1, 100);
 	}
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        String commandName = command.getName().toLowerCase();
+	private boolean cmdSetPeriod(CommandSender sender, String[] args) {
+		if (args.length >= 1) {
+			Long buildPeriod = getLong(args, 0);
+			Long battlePeriod = getLong(args, 1);
+			if(buildPeriod != null) {
+				if(battlePeriod == null)
+					battlePeriod = buildPeriod;
+				
+				getBattleHandler().setPeriod(buildPeriod, battlePeriod);
+				return true;
+			}
+			sender.sendMessage("Period isn't a valid number.");
+		}
+		sender.sendMessage("Need at least one period number.");
+		return false;
+	}
 
-        if (commandName.equals("chteam")) {
-        	cmdChangeTeam(sender, args);
-        } else if (commandName.equals("teamhome")) {
-        	cmdTeamHome(sender);
-        } else if (commandName.equals("battle")) {
-        	cmdBattle(sender, args);
-        }
+	private boolean cmdSetTime(CommandSender sender, String[] args) {
+		if (args.length >= 1) {
+			Long buildTime = getLong(args, 0);
+			Long battleTime = getLong(args, 1);
+			if(buildTime != null) {
+				if(battleTime == null)
+					battleTime = buildTime;
+				
+				getBattleHandler().setTime(buildTime, battleTime);
+				return true;
+			}
+			sender.sendMessage("Period isn't a valid number.");
+		}
+		sender.sendMessage("Need at least one period number.");
+		return false;
+	}
 
-        return false;
-    }
+	private Long getLong(String[] args, int i) {
+		if(args.length > i) {
+			try {
+				return Long.parseLong(args[i]);
+			} catch (NumberFormatException e) {}
+		}
+		return null;
+	}
 
-	private void cmdBattle(CommandSender sender, String[] args) {
+	private boolean cmdBattle(CommandSender sender, String[] args) {
 		boolean state;
-		if(args.length >= 1) {
+		if (args.length >= 1) {
 			state = Boolean.parseBoolean(args[0]);
 		} else {
 			state = !battleHandler.isBattle();
 		}
 		battleHandler.setBattleState(state);
+		return true;
 	}
 
-	private void cmdTeamHome(CommandSender sender) {
-		if(sender instanceof Player) {
-			Player player = (Player)sender;
+	private boolean cmdTeamHome(CommandSender sender) {
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
 			Area teamArea = teamHandler.getTeamArea(player);
 			Location home = teamArea.getHome();
-			player.teleportTo(home);
+			player.teleport(home);
+			return true;
 		}
-		
+		return false;
 	}
 
-	private void cmdChangeTeam(CommandSender sender, String[] args) {
+	private boolean cmdChangeTeam(CommandSender sender, String[] args) {
 		String teamName = null;
 		String playerName = null;
-		if(args.length >= 1)
+		if (args.length >= 1)
 			teamName = args[0];
-		if(args.length >= 2)
+		if (args.length >= 2)
 			playerName = args[1];
-		
+
 		Team team;
-		if(teamName != null) {
+		if (teamName != null) {
 			team = teamHandler.getTeam(teamName);
 		} else {
-			return;
+			return false;
 		}
-		
+
 		Player player;
-		if(playerName != null)
+		if (playerName != null)
 			player = getServer().getPlayer(playerName);
-		else if(sender instanceof Player) {
+		else if (sender instanceof Player) {
 			player = (Player) sender;
 		} else {
-			return;
+			return false;
 		}
-		
-		if(player != null) {
+
+		if (player != null) {
 			teamHandler.changeTeam(player, team);
 		}
+		return true;
 	}
-	
+
 	public void notifyPlayers(String msg) {
-		String message = "McBob: "+msg;
-		System.out.println("notification: "+message);
-		getServer().broadcastMessage(message );
+		String message = "McBob: " + msg;
+		System.out.println("notification: " + message);
+		getServer().broadcastMessage(message);
 	}
 
 	public TeamHandler getTeamHandler() {
@@ -155,5 +227,5 @@ public class Mcbob extends JavaPlugin {
 	public boolean validateWorld(Location location) {
 		return getWorld() == location.getWorld();
 	}
-	
+
 }

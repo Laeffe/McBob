@@ -4,10 +4,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Material;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class TeamHandler extends PlayerListener {
 	ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<String, Team>();
@@ -16,23 +22,26 @@ public class TeamHandler extends PlayerListener {
 
 	public TeamHandler(Mcbob mcbob) {
 		this.mcbob = mcbob;
+	}
+	
+	public void init() {
 		createInitTeams();
 	}
 
 	private void createInitTeams() {
-		createTeam("North", 57, -1);
-		createTeam("South", 41, 1);
+		createTeam("North", Material.DIAMOND_BLOCK, new Vector(-1, 0, 0));
+		createTeam("South", Material.GOLD_BLOCK,    new Vector( 1, 0, 0));
 	}
 
-	private void createTeam(String name, int type, int cord) {
-		Team team = new Team(name, createFlag(type));
-		Area area = mcbob.getAreaHandler().createArea(cord, team.getFlag());
+	private void createTeam(String name, Material material, Vector modifier) {
+		Team team = new Team(name, createFlag(material));
+		Area area = mcbob.getAreaHandler().createArea(modifier, team);
 		team.setArea(area);
 		addTeam(team);
 	}
 
-	private Flag createFlag(int type) {
-		Flag flag = new Flag(type);
+	private Flag createFlag(Material material) {
+		Flag flag = new Flag(material);
 		mcbob.getBattleHandler().addFlag(flag);
 		return flag;
 	}
@@ -42,13 +51,13 @@ public class TeamHandler extends PlayerListener {
 	}
 
 	@Override
-	public void onPlayerQuit(PlayerEvent event) {
+	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		removePlayerFromTeam(player);
 	}
 	
 	@Override
-	public void onPlayerJoin(PlayerEvent event) {
+	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Team team = null;
 		int teamSize = Integer.MAX_VALUE;
@@ -61,14 +70,20 @@ public class TeamHandler extends PlayerListener {
 		}
 		addPlayer2Team(player, team);
 		mcbob.notifyPlayers(player.getDisplayName()+" joined team "+team.getName());
-		player.teleportTo(team.getArea().getHome());
+		player.teleport(team.getArea().getHome());
 	}
 
 	@Override
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		Player player = event.getPlayer();
-		Area teamArea = getTeamArea(player);
-		player.teleportTo(teamArea.getHome());
+		System.out.println("TeamHandler.onPlayerRespawn()");
+		final Player player = event.getPlayer();
+		final Area teamArea = getTeamArea(player);
+		mcbob.getServer().getScheduler().scheduleSyncDelayedTask(mcbob, new Runnable() {
+			@Override
+			public void run() {
+				player.teleport(teamArea.getHome());
+			}
+		}, 20);
 	}
 	
 	private void addPlayer2Team(Player player, Team team) {
@@ -104,6 +119,14 @@ public class TeamHandler extends PlayerListener {
 
 	public Set<Entry<String,Team>> getTeams() {
 		return teams.entrySet();
+	}
+
+	public void setChestContents(Chest chest, Team team) {
+		Inventory inventory = chest.getInventory();
+		inventory.clear();
+		inventory.addItem(new ItemStack(Material.LOG, 64));
+		inventory.addItem(new ItemStack(Material.COBBLESTONE, 64));
+		inventory.addItem(new ItemStack(Material.SULPHUR, 64));
 	}
 	
 }
