@@ -16,3 +16,4 @@ Todo’s
  * More/better commands for controlling the duration of the modes.
  * Start/Stop/Restart of “rounds”.
  * Running McBob in a parallel world.
+ * Add a "spectator" team
