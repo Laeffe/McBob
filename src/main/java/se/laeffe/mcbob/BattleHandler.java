@@ -7,28 +7,33 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockListener;
+import org.bukkit.util.config.Configuration;
 
 public class BattleHandler extends BlockListener {
-
-	private static final long TPS = 20;
-	private long startToNotifySeconds = 10;
-
-	private long seconds = 0;
-	
 	private Mcbob mcbob;
-	private long tickFlipBattle = 2000;
-	private long tickFlipBuild = 2000;
-	private long lastFlip = 0;
-	private boolean flipByTick = true;
+	private int battlePeriod         = 300; //15 min
+	private int buildPeriod          = 900;
+	private int lastFlip             = 0;
+	private boolean flipByTick       = true;
+	private int startToNotifySeconds = 10;
+	private int seconds              = 0;
 	
 	private boolean inBattle = false;
 	private LinkedHashSet<Flag> flags = new LinkedHashSet<Flag>();
 	private ConcurrentHashMap<Player, Flag> player2flag = new ConcurrentHashMap<Player, Flag>();
-	private long battleTime = 18000;
-	private long buildTime  = 6000;
+	private int battleTime = 18000;
+	private int buildTime  = 6000;
+	private int punishFlagCarrierAfter = 30;
 	
 	public BattleHandler(Mcbob mcbob) {
-		this.mcbob = mcbob;
+		this.mcbob        = mcbob;
+		Configuration cfg = mcbob.getConfiguration();
+		
+		battlePeriod = cfg.getInt("battlePeriod", battlePeriod);
+		buildPeriod  = cfg.getInt("buildPeriod", buildPeriod);
+		
+		startToNotifySeconds = cfg.getInt("notificationSeconds", startToNotifySeconds);
+		punishFlagCarrierAfter = cfg.getInt("punishflagCarrierAfter", punishFlagCarrierAfter);
 	}
 
 	public boolean isTeamAreaRestrictionOn() {
@@ -48,9 +53,10 @@ public class BattleHandler extends BlockListener {
 	private void serverTick() {
 		boolean toggleBattle = false;
 		if(flipByTick) {
-			long tickFlip = inBattle?tickFlipBattle:tickFlipBuild;
+			long tickFlip = inBattle?battlePeriod:buildPeriod;
 			long diff = seconds-lastFlip;
-			System.out.println("BattleHandler.serverTick(), "+diff);
+			if(diff % 5 == 0)
+				System.out.println("BattleHandler.serverTick(), "+diff);
 			if(diff>=tickFlip) {
 				toggleBattle = true;
 			} else if(tickFlip-diff < startToNotifySeconds) {
@@ -76,9 +82,9 @@ public class BattleHandler extends BlockListener {
 		for(Entry<Player, Flag> e : player2flag.entrySet()) {
 			Player player = e.getKey();
 			Flag flag = e.getValue();
-			long diff = seconds-flag.getTakenTime();
+			int diff = seconds-flag.getTakenTime();
 			System.out.println("BattleHandler.updateFlagCarriers(), "+player.getDisplayName()+" flag "+flag.getTakenTime()+" diff "+diff);
-			if(diff % 10 == 0) {
+			if(diff % punishFlagCarrierAfter == 0) {
 				mcbob.notifyPlayers(player.getDisplayName()+" is still holding "+flag.getTeam().getName()+"'s flag, punished he will be.");
 				mcbob.getWorld().strikeLightning(player.getLocation());
 			}
@@ -197,13 +203,13 @@ public class BattleHandler extends BlockListener {
 			mcbob.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" DIED!!");
 	}
 
-	public void setPeriod(long buildPeriod, long battlePeriod) {
-	    tickFlipBuild = buildPeriod;
-	    tickFlipBattle = battlePeriod;
-	    flipByTick = true;
+	public void setPeriod(int buildPeriod, int battlePeriod) {
+	    this.buildPeriod = buildPeriod;
+	    this.battlePeriod = battlePeriod;
+	    this.flipByTick = true;
 	}
 
-	public void setTime(long buildTime, long battleTime) {
+	public void setTime(int buildTime, int battleTime) {
 		this.buildTime = buildTime; 
 		this.battleTime = battleTime;
 	    flipByTick = false;

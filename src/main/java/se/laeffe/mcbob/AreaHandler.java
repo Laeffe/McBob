@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
+import org.bukkit.util.config.Configuration;
 
 public class AreaHandler extends PlayerListener {
 
@@ -19,6 +20,10 @@ public class AreaHandler extends PlayerListener {
 
 	public AreaHandler(Mcbob mcbob) {
 		this.mcbob = mcbob;
+		Configuration cfg = mcbob.getConfiguration();
+		
+		radius         = cfg.getInt("radius", radius);
+		distanceToBase = cfg.getInt("distance", distanceToBase);
 	}
 	
 	public void init() {

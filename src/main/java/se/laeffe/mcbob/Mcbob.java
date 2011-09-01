@@ -27,7 +27,7 @@ public class Mcbob extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		System.out.println("Mcbob.onEnable()");
-		// TODO Auto-generated method stub
+
 		battleHandler = new BattleHandler(this);
 		buildHandler = new BuildHandler(this);
 		areaHandler = new AreaHandler(this);
@@ -105,8 +105,8 @@ public class Mcbob extends JavaPlugin {
 
 	private boolean cmdSetPeriod(CommandSender sender, String[] args) {
 		if (args.length >= 1) {
-			Long buildPeriod = getLong(args, 0);
-			Long battlePeriod = getLong(args, 1);
+			Integer buildPeriod = getInt(args, 0);
+			Integer battlePeriod = getInt(args, 1);
 			if(buildPeriod != null) {
 				if(battlePeriod == null)
 					battlePeriod = buildPeriod;
@@ -122,8 +122,8 @@ public class Mcbob extends JavaPlugin {
 
 	private boolean cmdSetTime(CommandSender sender, String[] args) {
 		if (args.length >= 1) {
-			Long buildTime = getLong(args, 0);
-			Long battleTime = getLong(args, 1);
+			Integer buildTime  = getInt(args, 0);
+			Integer battleTime = getInt(args, 1);
 			if(buildTime != null) {
 				if(battleTime == null)
 					battleTime = buildTime;
@@ -137,10 +137,10 @@ public class Mcbob extends JavaPlugin {
 		return false;
 	}
 
-	private Long getLong(String[] args, int i) {
+	private Integer getInt(String[] args, int i) {
 		if(args.length > i) {
 			try {
-				return Long.parseLong(args[i]);
+				return Integer.parseInt(args[i]);
 			} catch (NumberFormatException e) {}
 		}
 		return null;
@@ -176,11 +176,26 @@ public class Mcbob extends JavaPlugin {
 		if (args.length >= 2)
 			playerName = args[1];
 
-		Team team;
+		Team team = null;
 		if (teamName != null) {
 			team = teamHandler.getTeam(teamName);
+			if(team == null) {
+				sender.sendMessage("Sorry but '"+teamName+"' does not exist.");
+				return false;
+			}
 		} else {
-			return false;
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
+				for(Team t : teamHandler.getTeamsList()) {
+					if(!t.contains(player)) {
+						team = t;
+						break;
+					}
+				}
+			} else {
+				sender.sendMessage("A Player specifiy you must.");
+				return false;
+			}
 		}
 
 		Player player;
@@ -227,5 +242,4 @@ public class Mcbob extends JavaPlugin {
 	public boolean validateWorld(Location location) {
 		return getWorld() == location.getWorld();
 	}
-
 }

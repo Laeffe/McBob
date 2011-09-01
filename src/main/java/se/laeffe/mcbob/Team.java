@@ -62,4 +62,8 @@ public class Team {
 	public void setChest(Chest chest) {
 		this.chest = chest;
 	}
+
+	public boolean contains(Player player) {
+		return players.contains(player);
+	}
 }

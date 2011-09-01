@@ -1,5 +1,6 @@
 package se.laeffe.mcbob;
 
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,6 +79,7 @@ public class TeamHandler extends PlayerListener {
 		System.out.println("TeamHandler.onPlayerRespawn()");
 		final Player player = event.getPlayer();
 		final Area teamArea = getTeamArea(player);
+		//Let's wait a second before TP the player home, else it might not work ;)
 		mcbob.getServer().getScheduler().scheduleSyncDelayedTask(mcbob, new Runnable() {
 			@Override
 			public void run() {
@@ -104,6 +106,7 @@ public class TeamHandler extends PlayerListener {
 		Team oldTeam = removePlayerFromTeam(player);
 		addPlayer2Team(player, team);
 		mcbob.notifyPlayers(player.getDisplayName()+" changed team from "+oldTeam+" to "+team);
+		player.teleport(team.getArea().getHome());
 	}
 
 	private Team removePlayerFromTeam(Player player) {
@@ -119,6 +122,10 @@ public class TeamHandler extends PlayerListener {
 
 	public Set<Entry<String,Team>> getTeams() {
 		return teams.entrySet();
+	}
+	
+	public Collection<Team> getTeamsList() {
+		return teams.values();
 	}
 
 	public void setChestContents(Chest chest, Team team) {
