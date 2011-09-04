@@ -160,8 +160,8 @@ public class Mcbob extends JavaPlugin {
 	private boolean cmdTeamHome(CommandSender sender) {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
-			Area teamArea = teamHandler.getTeamArea(player);
-			Location home = teamArea.getHome();
+			Team team = teamHandler.getTeam(player);
+			Location home = team.getHome();
 			player.teleport(home);
 			return true;
 		}

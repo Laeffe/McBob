@@ -2,27 +2,27 @@ package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
 
+import org.bukkit.Location;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class Team {
 	LinkedHashSet<Player> players = new LinkedHashSet<Player>();
 	String name = "";
-	private Area area;
 	private Flag flag;
 	private Chest chest;
 	private int score = 0;
+	private Location home;
+	private final Vector locationModifier;
 	
-	public Team(String name, Flag flag) {
+	public Team(String name, Flag flag, Vector locationModifier) {
 		this.name = name;
 		this.flag = flag;
+		this.locationModifier = locationModifier;
 		flag.setTeam(this);
 	}
 
-	public void setArea(Area area) {
-		this.area = area;
-	}
-	
 	public int size() {
 		return players.size();
 	}
@@ -33,10 +33,6 @@ public class Team {
 
 	public String getName() {
 		return name;
-	}
-
-	public Area getArea() {
-		return area;
 	}
 
 	public boolean remove(Player player) {
@@ -65,5 +61,17 @@ public class Team {
 
 	public boolean contains(Player player) {
 		return players.contains(player);
+	}
+
+	public void setHome(Location teamHome) {
+		this.home = teamHome;
+	}
+	
+	public Location getHome() {
+		return home;
+	}
+	
+	public Vector getLocationModifier() {
+		return locationModifier;
 	}
 }

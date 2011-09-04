@@ -45,11 +45,11 @@ public class AreaHandler extends PlayerListener {
 		Player player = event.getPlayer();
 		
 		if(mcbob.getBattleHandler().isTeamAreaRestrictionOn()) {
-			Area area = mcbob.getTeamHandler().getTeamArea(player);
-			if(!area.isInside(to)) {
+			Team team = mcbob.getTeamHandler().getTeam(player);
+			if(!isInsideTeamArea(team, to)) {
 					event.setCancelled(true);
-					if(!area.isInside(event.getFrom())) {
-						Location home = area.getHome();
+					if(!isInsideTeamArea(team, event.getFrom())) {
+						Location home = team.getHome();
 						player.sendMessage("You are in hostile territory, teleporting you home."+event);
 						player.teleport(home);
 					} else {
@@ -68,16 +68,19 @@ public class AreaHandler extends PlayerListener {
 		
 	}
 
+	private boolean isInsideTeamArea(Team team, Location loc) {
+		return (loc.getBlockX()-center.getBlockX())*team.getLocationModifier().getX()>0;
+	}
+
 	private Vector getCenterVector() {
 		return center.toVector();
 	}
 
-	public Area createArea(Vector direction, Team team) {
+	public Location createTeamBase(Vector direction, Team team) {
 		World world = center.getWorld();
 		Location home = center.toVector().add(direction.clone().multiply(distanceToBase)).toLocation(world);
-//		home.setY(world.getHighestBlockYAt(home));
 		home = buildBasicBase(home, team, direction);
-		return new Area(direction, center, home);
+		return home;
 	}
 
 	private Location buildBasicBase(Location home, Team team, Vector modifier) {

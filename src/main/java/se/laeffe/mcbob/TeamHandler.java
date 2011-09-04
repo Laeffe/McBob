@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -35,9 +36,9 @@ public class TeamHandler extends PlayerListener {
 	}
 
 	private void createTeam(String name, Material material, Vector modifier) {
-		Team team = new Team(name, createFlag(material));
-		Area area = mcbob.getAreaHandler().createArea(modifier, team);
-		team.setArea(area);
+		Team team = new Team(name, createFlag(material), modifier);
+		Location teamHome = mcbob.getAreaHandler().createTeamBase(modifier, team);
+		team.setHome(teamHome);
 		addTeam(team);
 	}
 
@@ -71,19 +72,19 @@ public class TeamHandler extends PlayerListener {
 		}
 		addPlayer2Team(player, team);
 		mcbob.notifyPlayers(player.getDisplayName()+" joined team "+team.getName());
-		player.teleport(team.getArea().getHome());
+		player.teleport(team.getHome());
 	}
 
 	@Override
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		System.out.println("TeamHandler.onPlayerRespawn()");
 		final Player player = event.getPlayer();
-		final Area teamArea = getTeamArea(player);
+		final Team team = getTeam(player);
 		//Let's wait a second before TP the player home, else it might not work ;)
 		mcbob.getServer().getScheduler().scheduleSyncDelayedTask(mcbob, new Runnable() {
 			@Override
 			public void run() {
-				player.teleport(teamArea.getHome());
+				player.teleport(team.getHome());
 			}
 		}, 20);
 	}
@@ -93,20 +94,19 @@ public class TeamHandler extends PlayerListener {
 		player2team.put(player, team);
 	}
 
-	public Area getTeamArea(Player player) {
-		Team team = player2team.get(player);
-		return team.getArea();
-	}
-
 	public Team getTeam(String teamName) {
 		return teams.get(teamName.toLowerCase());
+	}
+	
+	public Team getTeam(Player player) {
+		return player2team.get(player);
 	}
 
 	public void changeTeam(Player player, Team team) {
 		Team oldTeam = removePlayerFromTeam(player);
 		addPlayer2Team(player, team);
 		mcbob.notifyPlayers(player.getDisplayName()+" changed team from "+oldTeam+" to "+team);
-		player.teleport(team.getArea().getHome());
+		player.teleport(team.getHome());
 	}
 
 	private Team removePlayerFromTeam(Player player) {
