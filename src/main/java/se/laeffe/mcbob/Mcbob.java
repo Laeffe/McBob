@@ -1,5 +1,7 @@
 package se.laeffe.mcbob;
 
+import java.util.Collection;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -82,8 +84,7 @@ public class Mcbob extends JavaPlugin {
 		getCommand("rebuildbases").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				// TODO Auto-generated method stub
-				return false;
+				return cmdRebuildBases();
 			}
 		});
 	}
@@ -186,7 +187,7 @@ public class Mcbob extends JavaPlugin {
 		} else {
 			if (sender instanceof Player) {
 				Player player = (Player) sender;
-				for(Team t : teamHandler.getTeamsList()) {
+				for(Team t : teamHandler.getTeams()) {
 					if(!t.contains(player)) {
 						team = t;
 						break;
@@ -211,6 +212,14 @@ public class Mcbob extends JavaPlugin {
 			teamHandler.changeTeam(player, team);
 		}
 		return true;
+	}
+
+	private boolean cmdRebuildBases() {
+		Collection<Team> teams = teamHandler.getTeams();
+		for(Team team : teams) {
+			areaHandler.createTeamBase(team);
+		}
+		return false;
 	}
 
 	public void notifyPlayers(String msg) {

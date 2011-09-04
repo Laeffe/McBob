@@ -2,7 +2,6 @@ package se.laeffe.mcbob;
 
 import java.util.Collection;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
@@ -37,7 +36,7 @@ public class TeamHandler extends PlayerListener {
 
 	private void createTeam(String name, Material material, Vector modifier) {
 		Team team = new Team(name, createFlag(material), modifier);
-		Location teamHome = mcbob.getAreaHandler().createTeamBase(modifier, team);
+		Location teamHome = mcbob.getAreaHandler().createTeamBase(team);
 		team.setHome(teamHome);
 		addTeam(team);
 	}
@@ -120,11 +119,7 @@ public class TeamHandler extends PlayerListener {
 		return player2team.get(player);
 	}
 
-	public Set<Entry<String,Team>> getTeams() {
-		return teams.entrySet();
-	}
-	
-	public Collection<Team> getTeamsList() {
+	public Collection<Team> getTeams() {
 		return teams.values();
 	}
 
@@ -135,5 +130,4 @@ public class TeamHandler extends PlayerListener {
 		inventory.addItem(new ItemStack(Material.COBBLESTONE, 64));
 		inventory.addItem(new ItemStack(Material.SULPHUR, 64));
 	}
-	
 }

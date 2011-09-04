@@ -76,8 +76,9 @@ public class AreaHandler extends PlayerListener {
 		return center.toVector();
 	}
 
-	public Location createTeamBase(Vector direction, Team team) {
+	public Location createTeamBase(Team team) {
 		World world = center.getWorld();
+		Vector direction = team.getLocationModifier();
 		Location home = center.toVector().add(direction.clone().multiply(distanceToBase)).toLocation(world);
 		home = buildBasicBase(home, team, direction);
 		return home;

@@ -120,8 +120,8 @@ public class BattleHandler extends BlockListener {
 
 	private void notifyScore() {
 		StringBuilder sb = new StringBuilder("The current score is, ");
-		for(Entry<String, Team> t : mcbob.getTeamHandler().getTeams()) {
-			sb.append(t.getKey()).append(":").append(t.getValue().getScore()).append(" ");
+		for(Team t : mcbob.getTeamHandler().getTeams()) {
+			sb.append(t.getName()).append(":").append(t.getScore()).append(" ");
 		}
 		
 		mcbob.notifyPlayers(sb.toString());
