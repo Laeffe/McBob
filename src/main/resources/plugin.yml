@@ -26,3 +26,23 @@ commands:
     description: Rebuild all bases
     usage: |
            /<command>
+  startgame:
+    description: Start a new McBob game in a world.
+    usage: |
+           /<command> [world]
+  stopgame:
+    description: Removes McBob game in a world.
+    usage: |
+           /<command> [world]
+  createworld:
+    description: Creates a new world.
+    usage: |
+           /<command> [world]
+  removeworld:
+    description: Removes a world.
+    usage: |
+           /<command> [world]
+  tpworld:
+    description: Teleport to world, and join game if any is running.
+    usage: |
+           /<command> [world]

@@ -9,20 +9,19 @@ import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public class TeamHandler extends PlayerListener {
+public class TeamHandler {
 	ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<String, Team>();
 	ConcurrentHashMap<Player, Team> player2team = new ConcurrentHashMap<Player, Team>();
-	private Mcbob mcbob;
+	private GameInterface game;
 
-	public TeamHandler(Mcbob mcbob) {
-		this.mcbob = mcbob;
+	public TeamHandler(GameInterface game) {
+		this.game = game;
 	}
 	
 	public void init() {
@@ -36,14 +35,14 @@ public class TeamHandler extends PlayerListener {
 
 	private void createTeam(String name, Material material, Vector modifier) {
 		Team team = new Team(name, createFlag(material), modifier);
-		Location teamHome = mcbob.getAreaHandler().createTeamBase(team);
+		Location teamHome = game.getAreaHandler().createTeamBase(team);
 		team.setHome(teamHome);
 		addTeam(team);
 	}
 
 	private Flag createFlag(Material material) {
 		Flag flag = new Flag(material);
-		mcbob.getBattleHandler().addFlag(flag);
+		game.getBattleHandler().addFlag(flag);
 		return flag;
 	}
 
@@ -51,13 +50,11 @@ public class TeamHandler extends PlayerListener {
 		teams.put(team.getName().toLowerCase(), team);
 	}
 
-	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		removePlayerFromTeam(player);
 	}
 	
-	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Team team = null;
@@ -70,17 +67,16 @@ public class TeamHandler extends PlayerListener {
 			}
 		}
 		addPlayer2Team(player, team);
-		mcbob.notifyPlayers(player.getDisplayName()+" joined team "+team.getName());
+		game.notifyPlayers(player.getDisplayName()+" joined team "+team.getName());
 		player.teleport(team.getHome());
 	}
 
-	@Override
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		System.out.println("TeamHandler.onPlayerRespawn()");
 		final Player player = event.getPlayer();
 		final Team team = getTeam(player);
 		//Let's wait a second before TP the player home, else it might not work ;)
-		mcbob.getServer().getScheduler().scheduleSyncDelayedTask(mcbob, new Runnable() {
+		game.getServer().getScheduler().scheduleSyncDelayedTask(game.getMcbob(), new Runnable() {
 			@Override
 			public void run() {
 				player.teleport(team.getHome());
@@ -104,14 +100,14 @@ public class TeamHandler extends PlayerListener {
 	public void changeTeam(Player player, Team team) {
 		Team oldTeam = removePlayerFromTeam(player);
 		addPlayer2Team(player, team);
-		mcbob.notifyPlayers(player.getDisplayName()+" changed team from "+oldTeam+" to "+team);
+		game.notifyPlayers(player.getDisplayName()+" changed team from "+oldTeam+" to "+team);
 		player.teleport(team.getHome());
 	}
 
 	private Team removePlayerFromTeam(Player player) {
 		Team oldTeam = player2team.remove(player);
 		oldTeam.remove(player);
-		mcbob.getBattleHandler().playerQuitTeam(player);
+		game.getBattleHandler().playerQuitTeam(player);
 		return oldTeam;
 	}
 

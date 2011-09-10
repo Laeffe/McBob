@@ -6,11 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.util.config.Configuration;
 
-public class BattleHandler extends BlockListener {
-	private Mcbob mcbob;
+public class BattleHandler {
+	private GameInterface game;
 	private int battlePeriod         = 300; //15 min
 	private int buildPeriod          = 900;
 	private int lastFlip             = 0;
@@ -24,15 +23,17 @@ public class BattleHandler extends BlockListener {
 	private int battleTime = 18000;
 	private int buildTime  = 6000;
 	private int punishFlagCarrierAfter = 30;
+	private int notifyOfFlipEvry = 30;
 	
-	public BattleHandler(Mcbob mcbob) {
-		this.mcbob        = mcbob;
-		Configuration cfg = mcbob.getConfiguration();
+	public BattleHandler(GameInterface game) {
+		this.game        = game;
+		Configuration cfg = game.getConfiguration();
 		
 		battlePeriod = cfg.getInt("battlePeriod", battlePeriod);
 		buildPeriod  = cfg.getInt("buildPeriod", buildPeriod);
 		
-		startToNotifySeconds = cfg.getInt("notificationSeconds", startToNotifySeconds);
+		startToNotifySeconds   = cfg.getInt("notificationSeconds",    startToNotifySeconds);
+		notifyOfFlipEvry       = cfg.getInt("notifyEvery",            notifyOfFlipEvry);
 		punishFlagCarrierAfter = cfg.getInt("punishflagCarrierAfter", punishFlagCarrierAfter);
 	}
 
@@ -44,13 +45,14 @@ public class BattleHandler extends BlockListener {
 		return !inBattle;
 	}
 	
-	private void tickPerSecond() {
+	public void tickPerSecond() {
 		seconds++;
 		serverTick();
 		updateFlagCarriers();
 	}
 
 	private void serverTick() {
+		
 		boolean toggleBattle = false;
 		if(flipByTick) {
 			long tickFlip = inBattle?battlePeriod:buildPeriod;
@@ -59,12 +61,14 @@ public class BattleHandler extends BlockListener {
 				System.out.println("BattleHandler.serverTick(), "+diff);
 			if(diff>=tickFlip) {
 				toggleBattle = true;
-			} else if(tickFlip-diff < startToNotifySeconds) {
-				long seconds = (tickFlip-diff);
-				mcbob.notifyPlayers("There will be "+(inBattle?"peace":"war")+" in "+seconds+"s.");
+			} else {
+				long secondsLeft = tickFlip-diff;
+				if(secondsLeft < startToNotifySeconds || secondsLeft % notifyOfFlipEvry == 0) {
+					game.notifyPlayers("There will be "+(inBattle?"peace":"war")+" in "+secondsLeft+"s.");
+				}
 			}
 		} else {
-			long time = mcbob.getWorld().getTime();
+			long time = game.getWorld().getTime();
 			System.out.println("BattleHandler.serverTick(), "+time);
 			long timeFlip = inBattle?buildTime:battleTime;
 			if(timeFlip>=time) {
@@ -85,19 +89,10 @@ public class BattleHandler extends BlockListener {
 			int diff = seconds-flag.getTakenTime();
 			System.out.println("BattleHandler.updateFlagCarriers(), "+player.getDisplayName()+" flag "+flag.getTakenTime()+" diff "+diff);
 			if(diff % punishFlagCarrierAfter == 0) {
-				mcbob.notifyPlayers(player.getDisplayName()+" is still holding "+flag.getTeam().getName()+"'s flag, punished he will be.");
-				mcbob.getWorld().strikeLightning(player.getLocation());
+				game.notifyPlayers(player.getDisplayName()+" is still holding "+flag.getTeam().getName()+"'s flag, punished he will be.");
+				game.getWorld().strikeLightning(player.getLocation());
 			}
 		}
-	}
-
-	public Runnable get20TickTask() {
-		return new Runnable() {
-			@Override
-			public void run() {
-				tickPerSecond();
-			}
-		};
 	}
 
 	public boolean isBattle() {
@@ -107,9 +102,9 @@ public class BattleHandler extends BlockListener {
 	public void setBattleState(boolean state) {
 		inBattle = state;
 		if(inBattle)
-			mcbob.notifyPlayers("We are now in BATTLE!!!!");
+			game.notifyPlayers("We are now in BATTLE!!!!");
 		else {
-			mcbob.notifyPlayers("The war time is over, returned flags has become.");
+			game.notifyPlayers("The war time is over, returned flags has become.");
 			for(Player e : player2flag.keySet()) {
 				returnFlag(e);
 			}
@@ -120,18 +115,17 @@ public class BattleHandler extends BlockListener {
 
 	private void notifyScore() {
 		StringBuilder sb = new StringBuilder("The current score is, ");
-		for(Team t : mcbob.getTeamHandler().getTeams()) {
+		for(Team t : game.getTeamHandler().getTeams()) {
 			sb.append(t.getName()).append(":").append(t.getScore()).append(" ");
 		}
 		
-		mcbob.notifyPlayers(sb.toString());
+		game.notifyPlayers(sb.toString());
 	}
 
 	public void addFlag(Flag flag) {
 		flags.add(flag);
 	}
 	
-	@Override
 	public void onBlockDamage(BlockDamageEvent event) {
 		for(Flag f : flags) {
 			if(!f.getBlock().getLocation().equals(event.getBlock().getLocation())) {
@@ -139,27 +133,27 @@ public class BattleHandler extends BlockListener {
 			}
 			
 			Player player = event.getPlayer();
-			Team team = mcbob.getTeamHandler().getPlayersTeam(player);
+			Team team = game.getTeamHandler().getPlayersTeam(player);
 			if(!f.isTaken()) {
 				if(f.getTeam() == team) {
 					player.sendMessage("Touched your flag");
 					Flag careingFlag = player2flag.get(player);
 					if(careingFlag != null) {
 						returnFlag(player, careingFlag);
-						mcbob.notifyPlayers(player.getName()+" has harbored the flag.");
+						game.notifyPlayers(player.getName()+" has harbored the flag.");
 						scored(player, team);
 					}
 				} else {
 					player.sendMessage("Touched other flag");
 					takeFlag(player, f);
-					mcbob.notifyPlayers(player.getName()+" has captured the flag.");
+					game.notifyPlayers(player.getName()+" has captured the flag.");
 				}
 			}
 		}
 	}
 
 	private void scored(Player player, Team team) {
-		mcbob.notifyPlayers(team.getName()+" scored!");
+		game.notifyPlayers(team.getName()+" scored!");
 		team.addScore(1);
 	}
 
@@ -194,13 +188,13 @@ public class BattleHandler extends BlockListener {
 	public void playerQuitTeam(Player player) {
 		Flag flag = returnFlag(player);
 		if(flag != null)
-			mcbob.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" left the team.");
+			game.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" left the team.");
 	}
 
 	public void playerDied(Player player) {
 		Flag flag = returnFlag(player);
 		if(flag != null)
-			mcbob.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" DIED!!");
+			game.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" DIED!!");
 	}
 
 	public void setPeriod(int buildPeriod, int battlePeriod) {

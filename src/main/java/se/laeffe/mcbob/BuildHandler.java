@@ -5,38 +5,31 @@ import java.util.LinkedHashSet;
 import org.bukkit.Location;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class BuildHandler extends BlockListener {
+public class BuildHandler {
 
-	private Mcbob mcbob;
+	private GameInterface game;
 	private LinkedHashSet<Cuboid> nobuilds = new LinkedHashSet<Cuboid>();
 
-	public BuildHandler(Mcbob mcbob) {
-		this.mcbob = mcbob;
+	public BuildHandler(GameInterface game) {
+		this.game = game;
 	}
 
-	@Override
+	@Deprecated
 	public void onBlockCanBuild(BlockCanBuildEvent event) {
 		if(true) return;
-		if(!mcbob.validateWorld(event.getBlock().getLocation()))
-			return;
 		
-		if(mcbob.getBattleHandler().isBuildingAllowed()) {
+		if(game.getBattleHandler().isBuildingAllowed()) {
 			event.setBuildable(true);
 		} else {
 			event.setBuildable(false);
 		}
 	}
 	
-	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
-		if(!mcbob.validateWorld(event.getBlock().getLocation()))
-			return;
-		
 		boolean cancel = false;
-		if(!mcbob.getBattleHandler().isBuildingAllowed()) {
+		if(!game.getBattleHandler().isBuildingAllowed()) {
 			cancel = true;
 		} else {
 			if(isNoBuild(event.getBlock().getLocation())) {
@@ -49,13 +42,9 @@ public class BuildHandler extends BlockListener {
 		System.out.println("BuildHandler.onBlockBreak()");
 	}
 	
-	@Override
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if(!mcbob.validateWorld(event.getBlock().getLocation()))
-			return;
-		
 		boolean cancel = false;
-		if(!mcbob.getBattleHandler().isBuildingAllowed()) {
+		if(!game.getBattleHandler().isBuildingAllowed()) {
 			cancel = true;
 		} else {
 			if(isNoBuild(event.getBlock().getLocation())) {

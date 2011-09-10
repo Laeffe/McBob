@@ -3,22 +3,20 @@ package se.laeffe.mcbob;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityListener;
 
-public class DeathHandler extends EntityListener {
+public class DeathHandler {
 
-	private Mcbob mcbob;
+	private GameInterface game;
 
-	public DeathHandler(Mcbob mcbob) {
-		this.mcbob = mcbob;
+	public DeathHandler(GameInterface game) {
+		this.game = game;
 	}
 	
-	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof Player) {
 			Player player = (Player) entity;
-			mcbob.getBattleHandler().playerDied(player);
+			game.getBattleHandler().playerDied(player);
 		}
 	}
 }

@@ -6,28 +6,27 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 import org.bukkit.util.config.Configuration;
 
-public class AreaHandler extends PlayerListener {
+public class AreaHandler {
 
-	private Mcbob mcbob;
+	private GameInterface game;
 	private int radius = 100;
 	private Location center;
 	private int distanceToBase = 40;
 
-	public AreaHandler(Mcbob mcbob) {
-		this.mcbob = mcbob;
-		Configuration cfg = mcbob.getConfiguration();
+	public AreaHandler(GameInterface game) {
+		this.game = game;
+		Configuration cfg = game.getConfiguration();
 		
 		radius         = cfg.getInt("radius", radius);
 		distanceToBase = cfg.getInt("distance", distanceToBase);
 	}
 	
 	public void init() {
-		center = mcbob.getWorld().getSpawnLocation();
+		center = game.getWorld().getSpawnLocation();
 		initCenterMarker();
 	}
 
@@ -38,14 +37,13 @@ public class AreaHandler extends PlayerListener {
 		center.getWorld().getBlockAt(x, y, z);
 	}
 
-	@Override
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Location to = event.getTo();
 //		System.out.println("AreaHandler.onPlayerMove(), x:"+to.getBlockX()+" y:"+to.getBlockY()+" z:"+to.getBlockZ());
 		Player player = event.getPlayer();
 		
-		if(mcbob.getBattleHandler().isTeamAreaRestrictionOn()) {
-			Team team = mcbob.getTeamHandler().getTeam(player);
+		if(game.getBattleHandler().isTeamAreaRestrictionOn()) {
+			Team team = game.getTeamHandler().getTeam(player);
 			if(!isInsideTeamArea(team, to)) {
 					event.setCancelled(true);
 					if(!isInsideTeamArea(team, event.getFrom())) {
@@ -59,7 +57,8 @@ public class AreaHandler extends PlayerListener {
 			}
 		}
 		
-		if(to.toVector().distanceSquared(getCenterVector()) > radius*radius) {
+		double distanceSquared = to.toVector().distanceSquared(getCenterVector());
+		if(distanceSquared > radius*radius) {
 			event.setCancelled(true);
 			player.sendMessage("You are leaving the battle area.");
 			System.out.println("Player movement, out of radius.");
@@ -170,7 +169,7 @@ public class AreaHandler extends PlayerListener {
 								type = Material.CHEST.getId();
 								block.setTypeId(type);
 								Chest chest = (Chest)block.getState();
-								mcbob.getTeamHandler().setChestContents(chest, team);
+								game.getTeamHandler().setChestContents(chest, team);
 								team.setChest(chest);
 								break;
 							case -4:
@@ -188,7 +187,7 @@ public class AreaHandler extends PlayerListener {
 			}
 		}
 		
-		mcbob.getBuildHandler().addNoBuildCuboid(nobuild);
+		game.getBuildHandler().addNoBuildCuboid(nobuild);
 		return home;
 	}
 
