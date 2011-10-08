@@ -170,11 +170,11 @@ public class Mcbob extends JavaPlugin {
 		
 		getCommand("createworld").setExecutor(new CommandExecutor() {
 			@Override
-			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+			public boolean onCommand(final CommandSender sender, Command command, String label, String[] args) {
 				if(args.length < 1)
 					return false;
 				
-				String name = args[0];
+				final String name = args[0];
 				
 				Environment environment = Environment.NORMAL;
 				if(args.length > 1) {
@@ -191,10 +191,17 @@ public class Mcbob extends JavaPlugin {
 					}
 				}
 				
-				if(getServer().createWorld(name, environment) == null) {
-					sender.sendMessage("Could not create world.");
-					return false;
-				}
+				final Environment env = environment;
+				getServer().getScheduler().scheduleSyncDelayedTask(Mcbob.this, new Runnable() {
+					public void run() {
+						if(getServer().createWorld(name, env) == null) {
+							sender.sendMessage("Could not create world.");
+						} else {
+							sender.sendMessage("World is created.");
+						}
+					}
+				});
+				
 				return true;
 			}
 		});
@@ -210,10 +217,10 @@ public class Mcbob extends JavaPlugin {
 		getCommand("tpworld").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				if(args.length < 1)
-					return false;
+				World world = null;
+				if(args.length > 0)
+					world = getServer().getWorld(args[0]);
 				
-				World world = getServer().getWorld(args[0]);
 				if(world == null) {
 					sender.sendMessage("World does not exist." +getServer().getWorlds());
 					return false;
