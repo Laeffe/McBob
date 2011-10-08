@@ -3,6 +3,8 @@ package se.laeffe.mcbob;
 import static se.laeffe.mcbob.util.ParseHelper.getInt;
 
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -135,7 +137,15 @@ public class Game extends GameInterface {
 
 	@Override
 	public void notifyPlayers(String string) {
-		mcbob.notifyPlayers(string);
+		Set<Player> players = teamHandler.getPlayers();
+		if(players == null) {
+			System.out.println("Game.notifyPlayers(), No players to notify.");
+			return;
+		}
+		
+		for(Player p : players) {
+			p.sendMessage(string);
+		}
 	}
 
 	@Override
