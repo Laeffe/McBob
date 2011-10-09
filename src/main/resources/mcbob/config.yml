@@ -1,12 +1,14 @@
-radius: 100
-distance: 40
-battlePeriod: 300
-buildPeriod: 900
-notificationSeconds: 10
-notifyEvery: 30
-punishflagCarrierAfter: 30
+global:
+  radius: 100
+  distance: 40
+  battlePeriod: 300
+  buildPeriod: 900
+  notificationSeconds: 10
+  notifyEvery: 30
+  punishflagCarrierAfter: 30
 
-world:
-  battlePeriod: 150
-  buildPeriod: 300
+worlds:
+  world:
+    battlePeriod: 150
+    buildPeriod: 300
   

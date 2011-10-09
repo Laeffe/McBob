@@ -21,15 +21,18 @@ public class GameConfiguration extends ConfigurationNode {
 
 	@Override
 	public Object getProperty(String path) {
-		Object property = super.getProperty(prefix+"."+path);
-		if(property == null) {
-			System.out.println("GameConfiguration.getProperty(), property with prefix not found: "+prefix+"."+path);
-			property = super.getProperty(path);
-			if(property == null)
-				System.out.println("GameConfiguration.getProperty(), property not found: "+path );
-		} else {
-			System.out.println("GameConfiguration.getProperty(), found: "+prefix+"."+path);
-		}
+		Object property = superGetProperty("worlds."+prefix+"."+path);
+		if(property != null)
+			return property;
+		return superGetProperty("global."+path);
+	}
+
+	private Object superGetProperty(String string) {
+		Object property = super.getProperty(string);
+		if(property == null)
+			System.out.println("GameConfiguration.superGetProperty(), didn't find: "+string);
+		else
+			System.out.println("GameConfiguration.superGetProperty(), found: "+string);
 		return property;
 	}
 }
