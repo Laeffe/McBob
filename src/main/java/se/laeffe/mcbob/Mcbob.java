@@ -291,6 +291,7 @@ public class Mcbob extends JavaPlugin {
 	
 	private boolean stopGame(Game game) {
 		game.deactivate();
+		game.notifyPlayers("This game has ended (stopped by admin).");
 		gamesInWorlds.remove(game.getWorld());
 		games.remove(game.getName());
 		for(Iterator<Entry<Player, Game>> iterator = player2game.entrySet().iterator(); iterator.hasNext();) {
