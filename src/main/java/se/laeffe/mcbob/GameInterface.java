@@ -31,7 +31,7 @@ public abstract class GameInterface {
 
 	public abstract void onBlockDamage(BlockDamageEvent event);
 
-	public abstract Configuration getConfiguration();
+	public abstract GameConfiguration getConfiguration();
 
 	public abstract TeamHandler getTeamHandler();
 

@@ -1,7 +1,9 @@
 package se.laeffe.mcbob;
 
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
@@ -113,6 +115,10 @@ public class TeamHandler {
 
 	public Team getPlayersTeam(Player player) {
 		return player2team.get(player);
+	}
+	
+	public Set<Player> getPlayers() {
+		return player2team.keySet();
 	}
 
 	public Collection<Team> getTeams() {

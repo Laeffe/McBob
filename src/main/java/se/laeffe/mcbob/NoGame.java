@@ -64,7 +64,7 @@ public class NoGame extends GameInterface {
 	}
 
 	@Override
-	public Configuration getConfiguration() {
+	public GameConfiguration getConfiguration() {
 		// TODO Auto-generated method stub
 		return null;
 	}

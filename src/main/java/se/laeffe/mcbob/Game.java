@@ -31,6 +31,7 @@ public class Game extends GameInterface {
 	private final String name;
 	private final World world;
 	private volatile boolean active = true;
+	private GameConfiguration gameConfiguration = null;
 
 	public Game(Mcbob mcbob, String name, World world) {
 		this.mcbob = mcbob;
@@ -110,8 +111,10 @@ public class Game extends GameInterface {
 	}
 
 	@Override
-	public Configuration getConfiguration() {
-		return mcbob.getConfiguration();
+	public GameConfiguration getConfiguration() {
+		if(gameConfiguration == null)
+			gameConfiguration = mcbob.getGameConfiguration(name);
+		return gameConfiguration;
 	}
 
 	

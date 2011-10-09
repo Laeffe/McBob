@@ -27,7 +27,7 @@ public class BattleHandler {
 	
 	public BattleHandler(GameInterface game) {
 		this.game        = game;
-		Configuration cfg = game.getConfiguration();
+		GameConfiguration cfg = game.getConfiguration();
 		
 		battlePeriod = cfg.getInt("battlePeriod", battlePeriod);
 		buildPeriod  = cfg.getInt("buildPeriod", buildPeriod);

@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 
 public class Mcbob extends JavaPlugin {
 	private ConcurrentHashMap<String, Game> games         = new ConcurrentHashMap<String, Game>();
@@ -392,5 +393,10 @@ public class Mcbob extends JavaPlugin {
 
 	public void playerLeft(Player player, Game game) {
 		player2game.remove(player);
+	}
+
+	public GameConfiguration getGameConfiguration(String name) {
+		Configuration configuration = getConfiguration();
+		return new GameConfiguration(name, configuration);
 	}
 }

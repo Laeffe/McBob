@@ -19,7 +19,7 @@ public class AreaHandler {
 
 	public AreaHandler(GameInterface game) {
 		this.game = game;
-		Configuration cfg = game.getConfiguration();
+		GameConfiguration cfg = game.getConfiguration();
 		
 		radius         = cfg.getInt("radius", radius);
 		distanceToBase = cfg.getInt("distance", distanceToBase);
