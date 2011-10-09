@@ -74,4 +74,9 @@ public class Team {
 	public Vector getLocationModifier() {
 		return locationModifier;
 	}
+	
+	@Override
+	public String toString() {
+		return "Team["+name+"]";
+	}
 }

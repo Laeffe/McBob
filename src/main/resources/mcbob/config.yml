@@ -6,9 +6,29 @@ global:
   notificationSeconds: 10
   notifyEvery: 30
   punishflagCarrierAfter: 30
+  teamChest:
+    all:
+      LOG: 64
+      COBBLESTONE: 64
+      SULPHUR: 64
+    team:
+      North:
+        STONE: 1
+      South:
+        gravel: 1
 
 worlds:
   world:
     battlePeriod: 150
     buildPeriod: 300
+    teamChest:
+      all:
+        LOG: 32
+        COBBLESTONE: 32
+        SULPHUR: 32
+      team:
+        North:
+          STONE: 10
+        South:
+          gravel: 128
   

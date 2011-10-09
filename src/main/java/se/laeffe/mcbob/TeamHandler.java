@@ -2,6 +2,7 @@ package se.laeffe.mcbob;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.bukkit.util.config.ConfigurationNode;
 
 public class TeamHandler {
 	ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<String, Team>();
@@ -128,8 +130,30 @@ public class TeamHandler {
 	public void setChestContents(Chest chest, Team team) {
 		Inventory inventory = chest.getInventory();
 		inventory.clear();
-		inventory.addItem(new ItemStack(Material.LOG, 64));
-		inventory.addItem(new ItemStack(Material.COBBLESTONE, 64));
-		inventory.addItem(new ItemStack(Material.SULPHUR, 64));
+		
+		GameConfiguration cfg = game.getConfiguration();
+		ConfigurationNode allTeams = cfg.getNode("teamChest.all");
+		addToInventroy(inventory, allTeams, team);
+		
+		ConfigurationNode teamItems = cfg.getNode("teamChest.team."+team.getName());
+		addToInventroy(inventory, teamItems, team);
+	}
+
+	private void addToInventroy(Inventory inventory, ConfigurationNode itemConfiguration, Team team) {
+		if(itemConfiguration == null)
+			return;
+		
+		for(Entry<String, Object> e : itemConfiguration.getAll().entrySet()) {
+			String materialString = e.getKey();
+			Material material = Material.matchMaterial(materialString);
+			if(material == null) {
+				System.out.println("TeamHandler.addToInventroy(), Material not matched: "+materialString);
+				continue;
+			}
+			
+			int amount = Integer.parseInt(String.valueOf(e.getValue()));
+			System.out.println("TeamHandler.addToInventroy(), adding "+amount+" of "+material+" to "+team);
+			inventory.addItem(new ItemStack(material, amount));
+		}
 	}
 }
