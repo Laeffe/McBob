@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
@@ -29,12 +30,7 @@ public class GameConfiguration {
 	}
 
 	private Object getFromConfigurationSection(String string) {
-		Object property = configurationSection.get(string);
-		if(property == null)
-			System.out.println("GameConfiguration.superGetProperty(), didn't find: "+string);
-		else
-			System.out.println("GameConfiguration.superGetProperty(), found: "+string);
-		return property;
+		return configurationSection.get(string);
 	}
 
 	public int getInt(String path, int defaultValue) {
@@ -47,10 +43,14 @@ public class GameConfiguration {
 		return defaultValue;
 	}
 	
-	public List<Map<String,Object>> getMapList(String path) {
-		List<Map<String,Object>> mapList = configurationSection.getMapList(GAMES+path);
-		if(mapList == null)
-			mapList = configurationSection.getMapList(GLOBAL+path);
-		return mapList;
+	public Map<String, Object> getMap(String string, boolean deep) {
+		ConfigurationSection cs = configurationSection.getConfigurationSection(GAMES+string);
+		if(cs == null)
+			cs = configurationSection.getConfigurationSection(GLOBAL+string);
+
+		if(cs == null)
+			return null;
+		
+		return cs.getValues(deep);
 	}
 }
