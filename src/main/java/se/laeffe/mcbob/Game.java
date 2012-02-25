@@ -3,7 +3,6 @@ package se.laeffe.mcbob;
 import static se.laeffe.mcbob.util.ParseHelper.getInt;
 
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -19,9 +18,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.util.config.Configuration;
 
-public class Game extends GameInterface {
+public class Game extends AbstractGame {
 	private TeamHandler teamHandler;
 	private AreaHandler areaHandler;
 	private BuildHandler buildHandler;
@@ -30,7 +28,7 @@ public class Game extends GameInterface {
 	private final Mcbob mcbob;
 	private final String name;
 	private final World world;
-	private volatile boolean active = true;
+	private volatile boolean active = false;
 	private GameConfiguration gameConfiguration = null;
 
 	public Game(Mcbob mcbob, String name, World world) {
@@ -58,6 +56,33 @@ public class Game extends GameInterface {
 		
 		areaHandler.init();
 		teamHandler.init();
+		battleHandler.init();
+	}
+	
+	public void startGame() {
+		active = true;
+		notifyPlayers(getBattleHandler().getEndCondition().getEndConditionSummary());
+	}
+
+	@Override
+	public boolean endGame(String string) {
+		deactivate();
+		Team winners = getBattleHandler().getWinners();
+		String scoreSummary = getBattleHandler().getScoreSummary();
+		if(winners != null)
+		{
+			notifyPlayers("All your base are belong to team :"+winners.getName()+"!!! (yes, they won!)");
+			notifyPlayers("The winning score was, "+scoreSummary);
+		}
+		else
+		{
+			notifyPlayers("All your sucking is a equilibrium.. (there was a tie)");
+			notifyPlayers("The score was, "+scoreSummary);
+		}
+
+		notifyPlayers("(End condition '"+string+"')");
+		log(string);
+		return mcbob.removeGame(this);
 	}
 
 	@Override

@@ -12,7 +12,6 @@ public class Team {
 	String name = "";
 	private Flag flag;
 	private Chest chest;
-	private int score = 0;
 	private Location home;
 	private final Vector locationModifier;
 	
@@ -41,14 +40,6 @@ public class Team {
 
 	public Flag getFlag() {
 		return flag;
-	}
-
-	public void addScore(int i) {
-		score  += i;
-	}
-
-	public int getScore() {
-		return score;
 	}
 
 	public Chest getChest() {

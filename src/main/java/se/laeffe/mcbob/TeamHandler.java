@@ -1,7 +1,7 @@
 package se.laeffe.mcbob;
 
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,14 +17,13 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.bukkit.util.config.ConfigurationNode;
 
 public class TeamHandler {
 	ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<String, Team>();
 	ConcurrentHashMap<Player, Team> player2team = new ConcurrentHashMap<Player, Team>();
-	private GameInterface game;
+	private AbstractGame game;
 
-	public TeamHandler(GameInterface game) {
+	public TeamHandler(AbstractGame game) {
 		this.game = game;
 	}
 	

@@ -7,38 +7,33 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 public class Mcbob extends JavaPlugin {
 	private ConcurrentHashMap<String, Game> games         = new ConcurrentHashMap<String, Game>();
 	private ConcurrentHashMap<World, Game>  gamesInWorlds = new ConcurrentHashMap<World,  Game>();
 	private ConcurrentHashMap<Player, Game> player2game   = new ConcurrentHashMap<Player, Game>();
 
-	private GameInterface noGame = new NoGame();
+	private AbstractGame noGame = new NoGame();
 	
 	@Override
 	public void onDisable() {
@@ -67,36 +62,36 @@ public class Mcbob extends JavaPlugin {
 		}
 	}
 
-	public GameInterface getGame(Player player) {
+	public AbstractGame getGame(Player player) {
 		if(player == null)
 			return noGame;
 		
-		GameInterface game = player2game.get(player);
+		AbstractGame game = player2game.get(player);
 		if(game == null || !game.isActive())
 			return noGame;
 		return game;
 	}
 	
-	private GameInterface getGame(World world) {
+	private AbstractGame getGame(World world) {
 		if(world == null)
 			return noGame;
 		
-		GameInterface game = gamesInWorlds.get(world);
+		AbstractGame game = gamesInWorlds.get(world);
 		if(game == null || !game.isActive())
 			return noGame;
 		return game;
 	}
 	
-	public GameInterface getGame(PlayerEvent playerEvent) {
+	public AbstractGame getGame(PlayerEvent playerEvent) {
 		return getGame(playerEvent.getPlayer());
 	}
 	
-	public GameInterface getGame(BlockEvent blockEvent) {
+	public AbstractGame getGame(BlockEvent blockEvent) {
 		World world = blockEvent.getBlock().getLocation().getWorld();
 		return getGame(world);
 	}
 
-	public GameInterface getGame(EntityEvent entityEvent) {
+	public AbstractGame getGame(EntityEvent entityEvent) {
 		Entity entity = entityEvent.getEntity();
 		if (entity instanceof Player) {
 			return getGame((Player) entity);
@@ -105,7 +100,7 @@ public class Mcbob extends JavaPlugin {
 		return getGame(world);
 	}
 	
-	public GameInterface getGame(CommandSender sender, String[] args) {
+	public AbstractGame getGame(CommandSender sender, String[] args) {
 		if(sender instanceof Player)
 			return getGame((Player)sender);
 		//FIXME Add support to specify game name or something like that.
@@ -238,8 +233,14 @@ public class Mcbob extends JavaPlugin {
 				}
 			}
 		});
-		
-		
+		getCommand("reloadconfig").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				reloadConfig();
+				sender.sendMessage("Config reloaded from disk");
+				return true;
+			}
+		});
 	}
 	
 	private boolean cmdStartGame(CommandSender sender, String[] args) {
@@ -291,14 +292,17 @@ public class Mcbob extends JavaPlugin {
 	}
 	
 	private boolean stopGame(Game game) {
-		game.deactivate();
-		game.notifyPlayers("This game has ended (stopped by admin).");
+		return game.endGame("stopped by admin");
+	}
+
+	public boolean removeGame(Game game) {
 		gamesInWorlds.remove(game.getWorld());
 		games.remove(game.getName());
 		for(Iterator<Entry<Player, Game>> iterator = player2game.entrySet().iterator(); iterator.hasNext();) {
 			if(iterator.next().getValue() == game)
 				iterator.remove();
 		}
+		System.out.println("Game ended and removed: "+game);
 		return true;
 	}
 

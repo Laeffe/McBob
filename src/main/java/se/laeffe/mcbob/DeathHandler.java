@@ -6,9 +6,9 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public class DeathHandler {
 
-	private GameInterface game;
+	private AbstractGame game;
 
-	public DeathHandler(GameInterface game) {
+	public DeathHandler(AbstractGame game) {
 		this.game = game;
 	}
 	

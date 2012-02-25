@@ -46,3 +46,7 @@ commands:
     description: Teleport to world, and join game if any is running.
     usage: |
            /<command> [world]
+  reloadconfig:
+    description: Reloads config.
+    usage: |
+           /<command>

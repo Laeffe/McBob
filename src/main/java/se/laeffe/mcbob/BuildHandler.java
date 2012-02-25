@@ -9,10 +9,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BuildHandler {
 
-	private GameInterface game;
+	private AbstractGame game;
 	private LinkedHashSet<Cuboid> nobuilds = new LinkedHashSet<Cuboid>();
 
-	public BuildHandler(GameInterface game) {
+	public BuildHandler(AbstractGame game) {
 		this.game = game;
 	}
 

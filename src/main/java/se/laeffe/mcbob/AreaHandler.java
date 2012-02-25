@@ -8,16 +8,15 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
-import org.bukkit.util.config.Configuration;
 
 public class AreaHandler {
 
-	private GameInterface game;
+	private AbstractGame game;
 	private int radius = 100;
 	private Location center;
 	private int distanceToBase = 40;
 
-	public AreaHandler(GameInterface game) {
+	public AreaHandler(AbstractGame game) {
 		this.game = game;
 		GameConfiguration cfg = game.getConfiguration();
 		
@@ -48,10 +47,10 @@ public class AreaHandler {
 					event.setCancelled(true);
 					if(!isInsideTeamArea(team, event.getFrom())) {
 						Location home = team.getHome();
-						player.sendMessage("You are in hostile territory, teleporting you home."+event);
+						player.sendMessage("You are in hostile territory, teleporting you home.");
 						player.teleport(home);
 					} else {
-						player.sendMessage("You can not leave your team area now."+event);
+						player.sendMessage("You can not leave your team area now.");
 						player.teleport(event.getFrom());
 					}
 			}
@@ -61,7 +60,6 @@ public class AreaHandler {
 		if(distanceSquared > radius*radius) {
 			event.setCancelled(true);
 			player.sendMessage("You are leaving the battle area.");
-			System.out.println("Player movement, out of radius.");
 			player.teleport(event.getFrom());
 		}
 		

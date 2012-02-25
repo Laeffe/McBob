@@ -11,9 +11,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.util.config.Configuration;
 
-public abstract class GameInterface {
+public abstract class AbstractGame {
 
 	public abstract void init();
 
@@ -80,4 +79,10 @@ public abstract class GameInterface {
 	public String getName() {
 		return getClass().getSimpleName();
 	}
+
+	public boolean endGame(String string) {
+		log("DERP!!! can not call endGame on the abstract class");
+		return false;
+	}
+
 }

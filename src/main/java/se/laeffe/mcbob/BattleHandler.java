@@ -3,38 +3,52 @@ package se.laeffe.mcbob;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.util.config.Configuration;
 
 public class BattleHandler {
-	private GameInterface game;
+	private AbstractGame game;
 	private int battlePeriod         = 300; //15 min
 	private int buildPeriod          = 900;
 	private int lastFlip             = 0;
 	private boolean flipByTick       = true;
 	private int startToNotifySeconds = 10;
 	private int seconds              = 0;
+	private AtomicInteger nrOfFlips  = new AtomicInteger(0);
 	
 	private boolean inBattle = false;
 	private LinkedHashSet<Flag> flags = new LinkedHashSet<Flag>();
 	private ConcurrentHashMap<Player, Flag> player2flag = new ConcurrentHashMap<Player, Flag>();
-	private int battleTime = 18000;
-	private int buildTime  = 6000;
+	private ConcurrentHashMap<Team, AtomicInteger> scores = new ConcurrentHashMap<Team, AtomicInteger>();
+	private int battleTime             = 18000;
+	private int buildTime              = 6000;
+	private int firstBuildTime         = 12000;
 	private int punishFlagCarrierAfter = 30;
-	private int notifyOfFlipEvry = 30;
+	private int notifyOfFlipEvry       = 30;
 	
-	public BattleHandler(GameInterface game) {
+	private GameEndCondition endCondition;
+	
+	public BattleHandler(AbstractGame game) {
 		this.game        = game;
 		GameConfiguration cfg = game.getConfiguration();
 		
-		battlePeriod = cfg.getInt("battlePeriod", battlePeriod);
-		buildPeriod  = cfg.getInt("buildPeriod", buildPeriod);
+		battlePeriod    = cfg.getInt("battlePeriod",   battlePeriod);
+		buildPeriod     = cfg.getInt("buildPeriod",    buildPeriod);
+		firstBuildTime  = cfg.getInt("firstBuildTime", firstBuildTime);
 		
 		startToNotifySeconds   = cfg.getInt("notificationSeconds",    startToNotifySeconds);
 		notifyOfFlipEvry       = cfg.getInt("notifyEvery",            notifyOfFlipEvry);
 		punishFlagCarrierAfter = cfg.getInt("punishflagCarrierAfter", punishFlagCarrierAfter);
+		
+		endCondition = new GameEndCondition(cfg, game);
+	}
+
+	public void init() {
+		for(Team t : game.getTeamHandler().getTeams()) {
+			scores.put(t, new AtomicInteger(0));
+		}
 	}
 
 	public boolean isTeamAreaRestrictionOn() {
@@ -49,13 +63,14 @@ public class BattleHandler {
 		seconds++;
 		serverTick();
 		updateFlagCarriers();
+		checkEndConditions();
 	}
 
 	private void serverTick() {
 		
 		boolean toggleBattle = false;
 		if(flipByTick) {
-			long tickFlip = inBattle?battlePeriod:buildPeriod;
+			long tickFlip = getNextFlipTime();
 			long diff = seconds-lastFlip;
 			if(diff % 5 == 0)
 				System.out.println("BattleHandler.serverTick(), "+diff);
@@ -79,7 +94,16 @@ public class BattleHandler {
 		if(toggleBattle) {
 			setBattleState(!inBattle);
 			lastFlip = seconds;
+			nrOfFlips.incrementAndGet();
 		}
+	}
+
+	private int getNextFlipTime() {
+		if(nrOfFlips.get()>0)
+		{
+			return inBattle?battlePeriod:buildPeriod;
+		}
+		return firstBuildTime;
 	}
 
 	private void updateFlagCarriers() {
@@ -114,12 +138,16 @@ public class BattleHandler {
 	}
 
 	private void notifyScore() {
-		StringBuilder sb = new StringBuilder("The current score is, ");
+		String scoreSummary = getScoreSummary();
+		game.notifyPlayers("The current score is, "+scoreSummary);
+	}
+
+	public String getScoreSummary() {
+		StringBuilder sb = new StringBuilder();
 		for(Team t : game.getTeamHandler().getTeams()) {
-			sb.append(t.getName()).append(":").append(t.getScore()).append(" ");
+			sb.append(t.getName()).append(":").append(scores.get(t).get()).append(" ");
 		}
-		
-		game.notifyPlayers(sb.toString());
+		return sb.toString();
 	}
 
 	public void addFlag(Flag flag) {
@@ -153,8 +181,15 @@ public class BattleHandler {
 	}
 
 	private void scored(Player player, Team team) {
-		game.notifyPlayers(team.getName()+" scored!");
-		team.addScore(1);
+//		game.notifyPlayers(team.getName()+" scored!");
+		scores.get(team).getAndIncrement();
+		if(checkEndConditions())
+			return;
+		notifyScore();
+	}
+
+	private boolean checkEndConditions() {
+		return endCondition.check();
 	}
 
 	private void takeFlag(Player player, Flag f) {
@@ -207,5 +242,36 @@ public class BattleHandler {
 		this.buildTime = buildTime; 
 		this.battleTime = battleTime;
 	    flipByTick = false;
+	}
+	
+	public int getNrOfFlips() {
+		return nrOfFlips.get();
+	}
+	
+	public ConcurrentHashMap<Team, AtomicInteger> getScores() {
+		return scores;
+	}
+	
+	public int getSeconds() {
+		return seconds;
+	}
+
+	public Team getWinners() {
+		Team winners = null;
+		int winningScore = Integer.MIN_VALUE;
+		for(Entry<Team, AtomicInteger> s : scores.entrySet()) {
+			int score = s.getValue().get();
+			if(score > winningScore) {
+				winners = s.getKey();
+				winningScore = score;
+			} else if(score == winningScore) {
+				winners = null;
+			}
+		}
+		return winners;
+	}
+	
+	public GameEndCondition getEndCondition() {
+		return endCondition;
 	}
 }

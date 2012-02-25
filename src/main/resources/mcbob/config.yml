@@ -3,9 +3,14 @@ global:
   distance: 40
   battlePeriod: 300
   buildPeriod: 900
+  firstBuildTime: 60
   notificationSeconds: 10
   notifyEvery: 30
   punishflagCarrierAfter: 30
+  nrOfFlips: 1
+  maxSeconds: 60
+  winningScore: 3
+  maxScore: 5
   teamChest:
     all:
       LOG: 64
@@ -17,7 +22,7 @@ global:
       South:
         gravel: 1
 
-worlds:
+games:
   world:
     battlePeriod: 150
     buildPeriod: 300

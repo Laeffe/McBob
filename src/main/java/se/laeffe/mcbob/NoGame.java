@@ -11,9 +11,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.util.config.Configuration;
 
-public class NoGame extends GameInterface {
+public class NoGame extends AbstractGame {
 
 	@Override
 	public void init() {
