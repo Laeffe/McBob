@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -134,6 +135,12 @@ public class Game extends AbstractGame {
 	public void onEntityDeath(EntityDeathEvent event) {
 		log(event);
 		deathHandler.onEntityDeath(event);
+	}
+	
+	@Override
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+		log(event);
+		buildHandler.onEntityExplodeEvent(event);
 	}
 
 	@Override

@@ -21,6 +21,8 @@ import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -377,6 +379,11 @@ public class Mcbob extends JavaPlugin {
 					getGame(event).onPlayerChat(event);
 				}
 			}
+			
+			@EventHandler
+			public void onEntityExplodeEvent(EntityExplodeEvent event) {
+				getGame(event).onEntityExplodeEvent(event);
+			}
 		};
 		getServer().getPluginManager().registerEvents(listener, this);
 	}
@@ -401,5 +408,9 @@ public class Mcbob extends JavaPlugin {
 	
 	public ConcurrentHashMap<Player, Game> getPlayer2game() {
 		return player2game;
+	}
+
+	public void scheduleSyncDelayedTask(Runnable task, int delay) {
+		getServer().getScheduler().scheduleSyncDelayedTask(this, task, delay);
 	}
 }

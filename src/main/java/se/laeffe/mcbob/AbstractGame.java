@@ -5,8 +5,10 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -77,8 +79,11 @@ public abstract class AbstractGame {
 			calledFrom = stackTrace[1].getMethodName()+"()";
 		
 		StringBuilder sb = new StringBuilder(">> ").append(getName()).append(", ").append(calledFrom).append(" << ");
-		for(Object m : msg)
+		for(Object m : msg) {
+			if(m instanceof BlockEvent)
+				m = ((BlockEvent)m).getBlock();
 			sb.append(String.valueOf(m));
+		}
 		System.out.println(sb.toString());
 	}
 
@@ -92,5 +97,7 @@ public abstract class AbstractGame {
 	}
 
 	public abstract void onPlayerChat(PlayerChatEvent event);
+
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {}
 
 }

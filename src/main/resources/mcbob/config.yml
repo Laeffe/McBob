@@ -20,6 +20,7 @@ global:
       LOG: 64
       COBBLESTONE: 64
       SULPHUR: 64
+      IRON_INGOT: 8
     team:
       North:
         STONE: 1

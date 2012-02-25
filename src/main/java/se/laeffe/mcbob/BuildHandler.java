@@ -1,11 +1,17 @@
 package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class BuildHandler {
 
@@ -16,21 +22,11 @@ public class BuildHandler {
 		this.game = game;
 	}
 
-	@Deprecated
-	public void onBlockCanBuild(BlockCanBuildEvent event) {
-		if(true) return;
-		
-		if(game.getBattleHandler().isBuildingAllowed()) {
-			event.setBuildable(true);
-		} else {
-			event.setBuildable(false);
-		}
-	}
-	
 	public void onBlockBreak(BlockBreakEvent event) {
 		boolean cancel = false;
 		if(!game.getBattleHandler().isBuildingAllowed()) {
-			cancel = true;
+			if(event.getBlock().getType() != Material.TNT)
+				cancel = true;
 		} else {
 			if(isNoBuild(event.getBlock().getLocation())) {
 				cancel = true;
@@ -45,7 +41,8 @@ public class BuildHandler {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		boolean cancel = false;
 		if(!game.getBattleHandler().isBuildingAllowed()) {
-			cancel = true;
+			if(event.getBlock().getType() != Material.FIRE)
+				cancel = true;
 		} else {
 			if(isNoBuild(event.getBlock().getLocation())) {
 				cancel = true;
@@ -69,5 +66,29 @@ public class BuildHandler {
 
 	public void addNoBuildCuboid(Cuboid nobuild) {
 		nobuilds.add(nobuild);
+	}
+
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+		final List<BlockState> blockStates = new LinkedList<BlockState>();
+		List<Block> blockList = event.blockList();
+		for(Block b : blockList) {
+			if(isNoBuild(b.getLocation())) {
+				BlockState state = b.getState();
+				blockStates.add(state);
+			}
+		}
+		
+		int time = 10;
+		for(final BlockState bs : blockStates) {
+			game.getMcbob().scheduleSyncDelayedTask(new Runnable() {
+				@Override
+				public void run() {
+					Block block = bs.getBlock();
+					block.setTypeId(bs.getTypeId());
+					block.setData(bs.getRawData());
+				}
+			}, time);
+			time+=5;
+		}
 	}
 }
