@@ -15,10 +15,10 @@ public class GameEndCondition {
 
 	public GameEndCondition(GameConfiguration cfg, AbstractGame game) {
 		weakGameRef = new WeakReference<AbstractGame>(game);
-		nrOfFlips = cfg.getInt("nrOfFlips", nrOfFlips);
-		maxSeconds = cfg.getInt("maxSeconds", maxSeconds);
-		winningScore = cfg.getInt("winningScore", winningScore);
-		maxScore = cfg.getInt("maxScore", maxScore);
+		nrOfFlips = cfg.getInt("endcondition.nrOfFlips", nrOfFlips);
+		maxSeconds = cfg.getInt("endcondition.maxSeconds", maxSeconds);
+		winningScore = cfg.getInt("endcondition.winningScore", winningScore);
+		maxScore = cfg.getInt("maxendcondition.Score", maxScore);
 	}
 
 	public boolean check() {
@@ -58,18 +58,23 @@ public class GameEndCondition {
 	}
 	
 	public String getEndConditionSummary() {
-		StringBuilder sb = new StringBuilder("This game ends when");
+		StringBuilder sb = new StringBuilder("This game ends when; ");
+		int i = 0;
 		if(nrOfFlips > 0) {
-			sb.append(", the mode has flipped from building to battle: ").append(nrOfFlips).append(" times");
+			if(i++>0) sb.append(" or "); 
+			sb.append("the mode has flipped from building to battle: ").append(nrOfFlips).append(" times");
 		}
 		if(winningScore > 0) {
-			sb.append(", a team reaches a score of: ").append(winningScore);
+			if(i++>0) sb.append(" or "); 
+			sb.append("a team reaches a score of: ").append(winningScore);
 		}
 		if(maxScore>0){
-			sb.append(", the maximum score among the teams are: ").append(maxScore);
+			if(i>0) sb.append(" or "); 
+			sb.append("the maximum score among the teams are: ").append(maxScore);
 		}
 		if(maxSeconds>0) {
-			sb.append(", the play time reaches: ").append(maxSeconds).append(" seconds");
+			if(i>0) sb.append(" or "); 
+			sb.append("the play time reaches: ").append(maxSeconds).append(" seconds");
 		}
 		return sb.toString();
 	}

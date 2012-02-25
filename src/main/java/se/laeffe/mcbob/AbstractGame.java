@@ -7,12 +7,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 public abstract class AbstractGame {
+	protected final Mcbob mcbob;
+	
+	public AbstractGame(Mcbob mcbob) {
+		this.mcbob = mcbob;
+	}
 
 	public abstract void init();
 
@@ -84,5 +90,7 @@ public abstract class AbstractGame {
 		log("DERP!!! can not call endGame on the abstract class");
 		return false;
 	}
+
+	public abstract void onPlayerChat(PlayerChatEvent event);
 
 }

@@ -1,12 +1,16 @@
 package se.laeffe.mcbob;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -14,6 +18,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class NoGame extends AbstractGame {
 
+	public NoGame(Mcbob mcbob) {
+		super(mcbob);
+	}
+	
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
@@ -162,6 +170,13 @@ public class NoGame extends AbstractGame {
 	public boolean isActive() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void onPlayerChat(PlayerChatEvent event) {
+		for(Player p : mcbob.getPlayer2game().keySet()) {
+			event.getRecipients().remove(p);
+		}
 	}
 
 }

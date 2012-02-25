@@ -3,6 +3,7 @@ package se.laeffe.mcbob;
 import static se.laeffe.mcbob.util.ParseHelper.getInt;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -14,6 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -25,14 +27,13 @@ public class Game extends AbstractGame {
 	private BuildHandler buildHandler;
 	private BattleHandler battleHandler;
 	private DeathHandler deathHandler;
-	private final Mcbob mcbob;
 	private final String name;
 	private final World world;
 	private volatile boolean active = false;
 	private GameConfiguration gameConfiguration = null;
 
 	public Game(Mcbob mcbob, String name, World world) {
-		this.mcbob = mcbob;
+		super(mcbob);
 		this.name = name;
 		this.world = world;
 	}
@@ -312,5 +313,21 @@ public class Game extends AbstractGame {
 
 	public void tickPerSecond() {
 		battleHandler.tickPerSecond();
+	}
+
+	@Override
+	public void onPlayerChat(PlayerChatEvent event) {
+		String chatWithAllIndicator = getMcbob().getConfig().getString("chatisolation.chatWithAllIndicator", "!");
+		event.getRecipients().clear();
+		Collection<Player> players;
+		if(event.getMessage().startsWith(chatWithAllIndicator))
+		{
+			players = getTeamHandler().getPlayers();
+		}
+		else
+		{
+			players = getTeamHandler().getTeam(event.getPlayer()).getPlayers();
+		}
+		event.getRecipients().addAll(players);
 	}
 }

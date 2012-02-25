@@ -70,4 +70,8 @@ public class Team {
 	public String toString() {
 		return "Team["+name+"]";
 	}
+	
+	public LinkedHashSet<Player> getPlayers() {
+		return players;
+	}
 }

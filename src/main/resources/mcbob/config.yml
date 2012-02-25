@@ -1,3 +1,6 @@
+chatisolation:
+  enable: true
+  chatWithAllIndicator: !
 global:
   radius: 100
   distance: 40
@@ -7,10 +10,11 @@ global:
   notificationSeconds: 10
   notifyEvery: 30
   punishflagCarrierAfter: 30
-  nrOfFlips: 1
-  maxSeconds: 60
-  winningScore: 3
-  maxScore: 5
+  endcondition:
+    nrOfFlips: 0
+    maxSeconds: 7200
+    winningScore: 5
+    maxScore: 0
   teamChest:
     all:
       LOG: 64

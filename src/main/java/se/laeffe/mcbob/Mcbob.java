@@ -21,6 +21,7 @@ import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -33,7 +34,7 @@ public class Mcbob extends JavaPlugin {
 	private ConcurrentHashMap<World, Game>  gamesInWorlds = new ConcurrentHashMap<World,  Game>();
 	private ConcurrentHashMap<Player, Game> player2game   = new ConcurrentHashMap<Player, Game>();
 
-	private AbstractGame noGame = new NoGame();
+	private AbstractGame noGame = new NoGame(this);
 	
 	@Override
 	public void onDisable() {
@@ -193,7 +194,7 @@ public class Mcbob extends JavaPlugin {
 						if(getServer().createWorld(WorldCreator.name(worldName)) == null) {
 							sender.sendMessage("Could not create world.");
 						} else {
-							sender.sendMessage("World is created.");
+							sender.sendMessage("World were created.");
 						}
 					}
 				});
@@ -369,6 +370,13 @@ public class Mcbob extends JavaPlugin {
 			public void onEntityDeath(EntityDeathEvent event) {
 				getGame(event).onEntityDeath(event);
 			}
+			
+			@EventHandler
+			public void onPlayerChat(PlayerChatEvent event) {
+				if(getConfig().getBoolean("chatisolation.enable")) {
+					getGame(event).onPlayerChat(event);
+				}
+			}
 		};
 		getServer().getPluginManager().registerEvents(listener, this);
 	}
@@ -389,5 +397,9 @@ public class Mcbob extends JavaPlugin {
 
 	public GameConfiguration getGameConfiguration(String name) {
 		return new GameConfiguration(name, getConfig());
+	}
+	
+	public ConcurrentHashMap<Player, Game> getPlayer2game() {
+		return player2game;
 	}
 }
