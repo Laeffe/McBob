@@ -1,3 +1,5 @@
+nogame:
+  allowbuild: false
 chatisolation:
   enable: true
   chatWithAllIndicator: !

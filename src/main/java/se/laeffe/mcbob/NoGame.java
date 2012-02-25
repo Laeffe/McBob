@@ -6,8 +6,10 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -54,20 +56,29 @@ public class NoGame extends AbstractGame {
 
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
-		// TODO Auto-generated method stub
-
+		if(!allowBuild()) {
+			Player player = event.getPlayer();
+			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			event.setCancelled(true);
+		}
 	}
 
 	@Override
 	public void onBlockPlace(BlockPlaceEvent event) {
-		// TODO Auto-generated method stub
-
+		if(!allowBuild()) {
+			Player player = event.getPlayer();
+			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			event.setCancelled(true);
+		}
 	}
 
 	@Override
 	public void onBlockDamage(BlockDamageEvent event) {
-		// TODO Auto-generated method stub
-
+		if(!allowBuild()) {
+			Player player = event.getPlayer();
+			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			event.setCancelled(true);
+		}
 	}
 
 	@Override
@@ -177,6 +188,10 @@ public class NoGame extends AbstractGame {
 		for(Player p : mcbob.getPlayer2game().keySet()) {
 			event.getRecipients().remove(p);
 		}
+	}
+	
+	private boolean allowBuild() {
+		return mcbob.getConfig().getBoolean("nogame.allowbuild");
 	}
 
 }
