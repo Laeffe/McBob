@@ -1,38 +1,56 @@
 package se.laeffe.mcbob;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
+import org.bukkit.inventory.ItemStack;
 
-public class GameConfiguration extends ConfigurationNode {
+public class GameConfiguration {
 
+	private static final String GLOBAL = "global.";
+	private static final String GAMES = "games.";
 	private final String prefix;
+	private final ConfigurationSection configurationSection;
 
-	protected GameConfiguration(String prefix, ConfigurationNode originNode) {
-		super(new HashMap<String, Object>());
-		Map<String, Object> all = originNode.getAll();
-		for(Entry<String, Object> e : all.entrySet()) {
-			setProperty(e.getKey(), e.getValue());
-		}
+	protected GameConfiguration(String prefix, ConfigurationSection configurationSection) {
+		this.configurationSection = configurationSection;
 		this.prefix = prefix;
 	}
 
-	@Override
 	public Object getProperty(String path) {
-		Object property = superGetProperty("worlds."+prefix+"."+path);
+		Object property = getFromConfigurationSection(GAMES+prefix+"."+path);
 		if(property != null)
 			return property;
-		return superGetProperty("global."+path);
+		return getFromConfigurationSection(GLOBAL+path);
 	}
 
-	private Object superGetProperty(String string) {
-		Object property = super.getProperty(string);
+	private Object getFromConfigurationSection(String string) {
+		Object property = configurationSection.get(string);
 		if(property == null)
 			System.out.println("GameConfiguration.superGetProperty(), didn't find: "+string);
 		else
 			System.out.println("GameConfiguration.superGetProperty(), found: "+string);
 		return property;
+	}
+
+	public int getInt(String path, int defaultValue) {
+		Object property = getProperty(path);
+		if(property != null) {
+			try {
+			return Integer.parseInt(String.valueOf(property));
+			} catch(NumberFormatException e) {}
+		}
+		return defaultValue;
+	}
+	
+	public List<Map<String,Object>> getMapList(String path) {
+		List<Map<String,Object>> mapList = configurationSection.getMapList(GAMES+path);
+		if(mapList == null)
+			mapList = configurationSection.getMapList(GLOBAL+path);
+		return mapList;
 	}
 }

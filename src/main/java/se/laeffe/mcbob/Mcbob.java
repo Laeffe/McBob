@@ -175,27 +175,27 @@ public class Mcbob extends JavaPlugin {
 				if(args.length < 1)
 					return false;
 				
-				final String name = args[0];
+				final String worldName = args[0];
 				
-				Environment environment = Environment.NORMAL;
-				if(args.length > 1) {
-					try {
-						environment = Environment.valueOf(args[1]);
-					} catch(IllegalArgumentException e) {
-						StringBuilder sb = new StringBuilder();
-						for(Environment env : Environment.values()) {
-							sb.append(env.toString()).append(",");
-						}
-						sender.sendMessage("Not a valid environment, choose from: "+sb.toString());
-						System.out.println("Mcbob.registerCommands().new CommandExecutor() {...}.onCommand(), "+e);
-						return false;
-					}
-				}
+//				Environment environment = Environment.NORMAL;
+//				if(args.length > 1) {
+//					try {
+//						environment = Environment.valueOf(args[1]);
+//					} catch(IllegalArgumentException e) {
+//						StringBuilder sb = new StringBuilder();
+//						for(Environment env : Environment.values()) {
+//							sb.append(env.toString()).append(",");
+//						}
+//						sender.sendMessage("Not a valid environment, choose from: "+sb.toString());
+//						System.out.println("Mcbob.registerCommands().new CommandExecutor() {...}.onCommand(), "+e);
+//						return false;
+//					}
+//				}
+//				final Environment env = environment;
 				
-				final Environment env = environment;
 				getServer().getScheduler().scheduleSyncDelayedTask(Mcbob.this, new Runnable() {
 					public void run() {
-						if(getServer().createWorld(name, env) == null) {
+						if(getServer().createWorld(WorldCreator.name(worldName)) == null) {
 							sender.sendMessage("Could not create world.");
 						} else {
 							sender.sendMessage("World is created.");
@@ -318,67 +318,55 @@ public class Mcbob extends JavaPlugin {
 			game.onPlayerJoin(new PlayerJoinEvent(player, "Autojoining players in this world"));
 		}
 		
+		game.startGame();
+		
 		return true;
 	}
 
 	private void registerEvents() {
-		PluginManager pm = getServer().getPluginManager();
-		PlayerListener playerListener = new PlayerListener() {
-			@Override
+		@SuppressWarnings("unused")
+		Listener listener = new Listener() {
+			@EventHandler
 			public void onPlayerJoin(PlayerJoinEvent event) {
 				getGame(event.getPlayer().getWorld()).onPlayerJoin(event);
 			}
 			
-			@Override
+			@EventHandler
 			public void onPlayerQuit(PlayerQuitEvent event) {
 				getGame(event).onPlayerQuit(event);
 			}
 			
-			@Override
+			@EventHandler
 			public void onPlayerRespawn(PlayerRespawnEvent event) {
 				getGame(event).onPlayerRespawn(event);
 			}
 			
-			@Override
+			@EventHandler
 			public void onPlayerMove(PlayerMoveEvent event) {
 				getGame(event).onPlayerMove(event);
 			}
-		};
-		
-		BlockListener blockListener = new BlockListener() {
-			@Override
+
+			@EventHandler
 			public void onBlockBreak(BlockBreakEvent event) {
 				getGame(event.getPlayer()).onBlockBreak(event);
 			}
 			
-			@Override
+			@EventHandler
 			public void onBlockPlace(BlockPlaceEvent event) {
 				getGame(event.getPlayer()).onBlockPlace(event);
 			}
 			
-			@Override
+			@EventHandler
 			public void onBlockDamage(BlockDamageEvent event) {
 				getGame(event.getPlayer()).onBlockDamage(event);
 			}
-		};
-		
-		EntityListener entityListener = new EntityListener() {
-			@Override
+
+			@EventHandler
 			public void onEntityDeath(EntityDeathEvent event) {
 				getGame(event).onEntityDeath(event);
 			}
 		};
-		
-		pm.registerEvent(Type.PLAYER_JOIN,    playerListener, Priority.Normal, this);
-		pm.registerEvent(Type.PLAYER_QUIT,    playerListener, Priority.Normal, this);
-		pm.registerEvent(Type.PLAYER_RESPAWN, playerListener, Priority.Normal, this);
-		pm.registerEvent(Type.PLAYER_MOVE,    playerListener, Priority.Normal, this);
-
-		pm.registerEvent(Type.BLOCK_BREAK,    blockListener,  Priority.Normal, this);
-		pm.registerEvent(Type.BLOCK_PLACE,    blockListener,  Priority.Normal, this);
-		pm.registerEvent(Type.BLOCK_DAMAGE,   blockListener,  Priority.Normal, this);
-		
-		pm.registerEvent(Type.ENTITY_DEATH,   entityListener, Priority.Normal, this);
+		getServer().getPluginManager().registerEvents(listener, this);
 	}
 
 	public void notifyPlayers(String msg) {
@@ -396,7 +384,6 @@ public class Mcbob extends JavaPlugin {
 	}
 
 	public GameConfiguration getGameConfiguration(String name) {
-		Configuration configuration = getConfiguration();
-		return new GameConfiguration(name, configuration);
+		return new GameConfiguration(name, getConfig());
 	}
 }

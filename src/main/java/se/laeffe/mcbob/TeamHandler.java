@@ -131,29 +131,32 @@ public class TeamHandler {
 		Inventory inventory = chest.getInventory();
 		inventory.clear();
 		
-		GameConfiguration cfg = game.getConfiguration();
-		ConfigurationNode allTeams = cfg.getNode("teamChest.all");
-		addToInventroy(inventory, allTeams, team);
-		
-		ConfigurationNode teamItems = cfg.getNode("teamChest.team."+team.getName());
-		addToInventroy(inventory, teamItems, team);
+//		GameConfiguration cfg = game.getConfiguration();
+//		List<Map<String, Object>> allTeams = cfg.getMapList("teamChest.all");
+//		addToInventroy(inventory, allTeams, team);
+//		
+//		List<Map<String, Object>> teamItems = cfg.getMapList("teamChest.team."+team.getName());
+//		addToInventroy(inventory, teamItems, team);
 	}
 
-	private void addToInventroy(Inventory inventory, ConfigurationNode itemConfiguration, Team team) {
-		if(itemConfiguration == null)
+	private void addToInventroy(Inventory inventory, List<Map<String,Object>> itemListMap, Team team) {
+		if(itemListMap == null)
 			return;
 		
-		for(Entry<String, Object> e : itemConfiguration.getAll().entrySet()) {
-			String materialString = e.getKey();
-			Material material = Material.matchMaterial(materialString);
-			if(material == null) {
-				System.out.println("TeamHandler.addToInventroy(), Material not matched: "+materialString);
-				continue;
+		for(Map<String, Object> m : itemListMap)
+		{
+			for(Entry<String, Object> e : m.entrySet()) {
+				String materialString = e.getKey();
+				Material material = Material.matchMaterial(materialString);
+				if(material == null) {
+					System.out.println("TeamHandler.addToInventroy(), Material not matched: "+materialString);
+					continue;
+				}
+				
+				int amount = Integer.parseInt(String.valueOf(e.getValue()));
+				System.out.println("TeamHandler.addToInventroy(), adding "+amount+" of "+material+" to "+team);
+				inventory.addItem(new ItemStack(material, amount));
 			}
-			
-			int amount = Integer.parseInt(String.valueOf(e.getValue()));
-			System.out.println("TeamHandler.addToInventroy(), adding "+amount+" of "+material+" to "+team);
-			inventory.addItem(new ItemStack(material, amount));
 		}
 	}
 }
