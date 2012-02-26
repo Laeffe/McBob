@@ -317,6 +317,10 @@ public class Game extends AbstractGame {
 			Team team = teamHandler.getTeam(player);
 			Location home = team.getHome();
 			player.teleport(home);
+			//If player teleports home while carrying the flag, return it.
+			Flag flag = battleHandler.returnFlag(player);
+			if(flag != null)
+				notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" teleported home.");
 			return true;
 		}
 		return false;

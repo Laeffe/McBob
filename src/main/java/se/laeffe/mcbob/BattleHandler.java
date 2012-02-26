@@ -214,7 +214,7 @@ public class BattleHandler {
 		careingFlag.getBlock().setType(careingFlag.getType());
 	}
 
-	private Flag returnFlag(Player player) {
+	public Flag returnFlag(Player player) {
 		Flag flag = player2flag.remove(player);
 		if(flag != null)
 			returnFlag(flag);
