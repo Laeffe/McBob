@@ -6,12 +6,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.RepaintManager;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
@@ -21,10 +25,14 @@ import org.bukkit.util.Vector;
 public class TeamHandler {
 	ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<String, Team>();
 	ConcurrentHashMap<Player, Team> player2team = new ConcurrentHashMap<Player, Team>();
+	ConcurrentHashMap<Player, Long> playerRespawnTime = new ConcurrentHashMap<Player, Long>();
+	
 	private AbstractGame game;
+	private long respawnTime = 30;
 
 	public TeamHandler(AbstractGame game) {
 		this.game = game;
+		game.getConfiguration().getLong("spawn.respawntime", respawnTime);
 	}
 	
 	public void init() {
@@ -56,6 +64,7 @@ public class TeamHandler {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		removePlayerFromTeam(player);
+		playerRespawnTime.remove(player);
 	}
 	
 	public void onPlayerJoin(PlayerJoinEvent event) {
@@ -72,19 +81,44 @@ public class TeamHandler {
 		addPlayer2Team(player, team);
 		game.notifyPlayers(player.getDisplayName()+" joined team "+team.getName());
 		player.teleport(team.getHome());
+		
+		for(Player playerInRespawn : playerRespawnTime.keySet()) {
+			player.hidePlayer(playerInRespawn);
+		}
 	}
 
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		System.out.println("TeamHandler.onPlayerRespawn()");
 		final Player player = event.getPlayer();
-		final Team team = getTeam(player);
+		Location lastDeathLocation = game.getBattleHandler().getLastDeathLocation(player);
+		if(lastDeathLocation != null) {
+			game.log("onPlayerRespawn, lastDeathLocation: ", lastDeathLocation);
+			event.setRespawnLocation(lastDeathLocation);
+			game.hidePlayer(player);
+			playerRespawnTime.put(player, game.getSeconds()+respawnTime);
+			player.sendMessage("You will respawn for realz after "+respawnTime+" seconds");
+		}
+		else
+		{
+			game.log("Player does not have a lastDeathLocation");
+		}
+//		final Team team = getTeam(player);
+//		event.setRespawnLocation(team.getHome());
 		//Let's wait a second before TP the player home, else it might not work ;)
-		game.getServer().getScheduler().scheduleSyncDelayedTask(game.getMcbob(), new Runnable() {
-			@Override
-			public void run() {
-				player.teleport(team.getHome());
-			}
-		}, 20);
+//		game.getServer().getScheduler().scheduleSyncDelayedTask(game.getMcbob(), new Runnable() {
+//			@Override
+//			public void run() {
+//				player.teleport(team.getHome());
+//			}
+//		}, 20);
+	}
+	
+	private void doRealRespawn(Player player) {
+		if(playerRespawnTime.remove(player) == null)
+			game.log("Player respawned.. but was not in respawn timer map thingy");
+		Team team = getTeam(player);
+		player.teleport(team.getHome());
+		game.showPlayer(player);
+		player.sendMessage("You have now respawned.");
 	}
 	
 	private void addPlayer2Team(Player player, Team team) {
@@ -101,6 +135,7 @@ public class TeamHandler {
 	}
 
 	public void changeTeam(Player player, Team team) {
+		playerRespawnTime.remove(player);
 		Team oldTeam = removePlayerFromTeam(player);
 		addPlayer2Team(player, team);
 		game.notifyPlayers(player.getDisplayName()+" changed team from "+oldTeam+" to "+team);
@@ -155,4 +190,24 @@ public class TeamHandler {
 			inventory.addItem(new ItemStack(material, amount));
 		}
 	}
+
+	public void tickPerSecond() {
+		for(Entry<Player, Long> respawnTimer : playerRespawnTime.entrySet()) {
+			long respawnAt = respawnTimer.getValue();
+			long seconds = game.getSeconds();
+			game.log(respawnTimer.getKey().getName(), " will respawn at: ", respawnAt, " time now: ", seconds);
+			if(seconds >= respawnAt) {
+				doRealRespawn(respawnTimer.getKey());
+			}
+		}
+	}
+
+	public boolean checkIfPlayerIsInRespawn(Player player) {
+		if(playerRespawnTime.get(player) != null) {
+			player.sendMessage("Sorry, you have not respawnd yet.. for realz!");
+			return false;
+		}
+		return true;
+	}
+
 }

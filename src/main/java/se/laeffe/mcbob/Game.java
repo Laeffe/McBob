@@ -5,20 +5,27 @@ import static se.laeffe.mcbob.util.ParseHelper.getInt;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -27,11 +34,11 @@ public class Game extends AbstractGame {
 	private AreaHandler areaHandler;
 	private BuildHandler buildHandler;
 	private BattleHandler battleHandler;
-	private DeathHandler deathHandler;
 	private final String name;
 	private final World world;
 	private volatile boolean active = false;
 	private GameConfiguration gameConfiguration = null;
+	private AtomicLong seconds = new AtomicLong(0);
 
 	public Game(Mcbob mcbob, String name, World world) {
 		super(mcbob);
@@ -54,7 +61,6 @@ public class Game extends AbstractGame {
 		buildHandler = new BuildHandler(this);
 		areaHandler = new AreaHandler(this);
 		teamHandler = new TeamHandler(this);
-		deathHandler = new DeathHandler(this);
 		
 		areaHandler.init();
 		teamHandler.init();
@@ -110,37 +116,90 @@ public class Game extends AbstractGame {
 	@Override
 	public void onPlayerMove(PlayerMoveEvent event) {
 //		log(event);
+//		teamHandler.onPlayerMove(event);
+//		if(!event.isCancelled()) {
+//			return;
+//		}
 		areaHandler.onPlayerMove(event);
+	}
+	
+	@Override
+	public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
+		log(event);
+		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
+			event.setCancelled(true);
+			return;
+		}
 	}
 
 	@Override
 	public void onBlockBreak(BlockBreakEvent event) {
 		log(event);
+		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
+			event.setCancelled(true);
+			return;
+		}
 		buildHandler.onBlockBreak(event);
 	}
 
 	@Override
 	public void onBlockPlace(BlockPlaceEvent event) {
 		log(event);
+		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
+			event.setCancelled(true);
+			return;
+		}
 		buildHandler.onBlockPlace(event);
 	}
 
 	@Override
 	public void onBlockDamage(BlockDamageEvent event) {
 		log(event);
+		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
+			event.setCancelled(true);
+			return;
+		}
 		battleHandler.onBlockDamage(event);
 	}
 	
 	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
 		log(event);
-		deathHandler.onEntityDeath(event);
+		Entity entity = event.getEntity();
+		if (entity instanceof Player) {
+			Player player = (Player) entity;
+			getBattleHandler().playerDied(player);
+		}
+	}
+	
+	@Override
+	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
+			event.setCancelled(true);
+			return;
+		}
 	}
 	
 	@Override
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {
 		log(event);
 		buildHandler.onEntityExplodeEvent(event);
+	}
+	
+	@Override
+	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+		log(event);
+		Entity damager = event.getDamager();
+		if(damager instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player) damager)) {
+			event.setCancelled(true);
+			return;
+		}
+
+		Entity entity = event.getEntity();
+		if(entity instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player) entity)) {
+			event.setCancelled(true);
+			return;
+		}
 	}
 
 	@Override
@@ -319,7 +378,10 @@ public class Game extends AbstractGame {
 	}
 
 	public void tickPerSecond() {
+		seconds.incrementAndGet();
+		System.out.println("Game.tickPerSecond(), "+seconds.get());
 		battleHandler.tickPerSecond();
+		teamHandler.tickPerSecond();
 	}
 
 	@Override
@@ -336,5 +398,10 @@ public class Game extends AbstractGame {
 			players = getTeamHandler().getTeam(event.getPlayer()).getPlayers();
 		}
 		event.getRecipients().addAll(players);
+	}
+	
+	@Override
+	public long getSeconds() {
+		return seconds.get();
 	}
 }

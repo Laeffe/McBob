@@ -7,11 +7,14 @@ global:
   radius: 100
   distance: 40
   battlePeriod: 300
-  buildPeriod: 900
-  firstBuildTime: 60
+  buildPeriod: 300
+  firstBuildTime: 600
   notificationSeconds: 10
   notifyEvery: 30
-  punishflagCarrierAfter: 30
+  punishflagCarrierAfter: 60
+  spawn:
+    respawntime: 30
+    keepxp: true
   endcondition:
     nrOfFlips: 0
     maxSeconds: 7200
@@ -22,7 +25,11 @@ global:
       LOG: 64
       COBBLESTONE: 64
       SULPHUR: 64
-      IRON_INGOT: 8
+      IRON_INGOT: 64
+      TORCH: 64
+      EGG: 10
+      TNT: 10
+      FLINT_AND_STEEL: 10
     team:
       North:
         STONE: 1

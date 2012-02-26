@@ -49,7 +49,7 @@ public class GameEndCondition {
 		}
 		
 		if(maxSeconds > 0) {
-			if(bh.getSeconds() >= maxSeconds) {
+			if(getGame().getSeconds() >= maxSeconds) {
 				getGame().endGame("max seconds achieved");
 				return true;
 			}

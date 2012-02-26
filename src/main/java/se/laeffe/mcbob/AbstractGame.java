@@ -1,17 +1,24 @@
 package se.laeffe.mcbob;
 
+import java.awt.SecondaryLoop;
+
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -100,4 +107,26 @@ public abstract class AbstractGame {
 
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {}
 
+	public void hidePlayer(Player player) {
+		for(Player other : getServer().getOnlinePlayers()) {
+			other.hidePlayer(player);
+		}
+	}
+
+	public void showPlayer(Player player) {
+		for(Player other : getServer().getOnlinePlayers()) {
+			other.showPlayer(player);
+		}
+	}
+
+	public long getSeconds() {
+		return 0;
+	}
+
+	public abstract void onPlayerInteractEvent(PlayerInteractEvent event);
+
+	public abstract void onPlayerPickupItemEvent(PlayerPickupItemEvent event);
+
+	public abstract void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event);
+	
 }

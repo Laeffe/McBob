@@ -5,42 +5,44 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDamageEvent;
 
 public class BattleHandler {
 	private AbstractGame game;
-	private int battlePeriod         = 300; //15 min
-	private int buildPeriod          = 900;
-	private int lastFlip             = 0;
+	private long battlePeriod         = 300; //15 min
+	private long buildPeriod          = 900;
+	private long lastFlip             = 0;
 	private boolean flipByTick       = true;
-	private int startToNotifySeconds = 10;
-	private int seconds              = 0;
+	private long startToNotifySeconds = 10;
 	private AtomicInteger nrOfFlips  = new AtomicInteger(0);
 	
 	private boolean inBattle = false;
 	private LinkedHashSet<Flag> flags = new LinkedHashSet<Flag>();
 	private ConcurrentHashMap<Player, Flag> player2flag = new ConcurrentHashMap<Player, Flag>();
 	private ConcurrentHashMap<Team, AtomicInteger> scores = new ConcurrentHashMap<Team, AtomicInteger>();
-	private int battleTime             = 18000;
-	private int buildTime              = 6000;
-	private int firstBuildTime         = 12000;
-	private int punishFlagCarrierAfter = 30;
-	private int notifyOfFlipEvry       = 30;
-	
+	private long battleTime             = 18000;
+	private long buildTime              = 6000;
+	private long firstBuildTime         = 12000;
+	private long punishFlagCarrierAfter = 30;
+	private long notifyOfFlipEvry       = 30;
+
+	private ConcurrentHashMap<Player,Location> playersLastDeathLocation = new ConcurrentHashMap<Player, Location>();
+
 	private GameEndCondition endCondition;
 	
 	public BattleHandler(AbstractGame game) {
 		this.game        = game;
 		GameConfiguration cfg = game.getConfiguration();
 		
-		battlePeriod    = cfg.getInt("battlePeriod",   battlePeriod);
-		buildPeriod     = cfg.getInt("buildPeriod",    buildPeriod);
-		firstBuildTime  = cfg.getInt("firstBuildTime", firstBuildTime);
+		battlePeriod    = cfg.getLong("battlePeriod",   battlePeriod);
+		buildPeriod     = cfg.getLong("buildPeriod",    buildPeriod);
+		firstBuildTime  = cfg.getLong("firstBuildTime", firstBuildTime);
 		
-		startToNotifySeconds   = cfg.getInt("notificationSeconds",    startToNotifySeconds);
-		notifyOfFlipEvry       = cfg.getInt("notifyEvery",            notifyOfFlipEvry);
-		punishFlagCarrierAfter = cfg.getInt("punishflagCarrierAfter", punishFlagCarrierAfter);
+		startToNotifySeconds   = cfg.getLong("notificationSeconds",    startToNotifySeconds);
+		notifyOfFlipEvry       = cfg.getLong("notifyEvery",            notifyOfFlipEvry);
+		punishFlagCarrierAfter = cfg.getLong("punishflagCarrierAfter", punishFlagCarrierAfter);
 		
 		endCondition = new GameEndCondition(cfg, game);
 	}
@@ -60,7 +62,6 @@ public class BattleHandler {
 	}
 	
 	public void tickPerSecond() {
-		seconds++;
 		serverTick();
 		updateFlagCarriers();
 		checkEndConditions();
@@ -71,7 +72,7 @@ public class BattleHandler {
 		boolean toggleBattle = false;
 		if(flipByTick) {
 			long tickFlip = getNextFlipTime();
-			long diff = seconds-lastFlip;
+			long diff = game.getSeconds()-lastFlip;
 			if(diff % 5 == 0)
 				System.out.println("BattleHandler.serverTick(), "+diff);
 			if(diff>=tickFlip) {
@@ -93,12 +94,12 @@ public class BattleHandler {
 		
 		if(toggleBattle) {
 			setBattleState(!inBattle);
-			lastFlip = seconds;
+			lastFlip = game.getSeconds();
 			nrOfFlips.incrementAndGet();
 		}
 	}
 
-	private int getNextFlipTime() {
+	private long getNextFlipTime() {
 		if(nrOfFlips.get()>0)
 		{
 			return inBattle?battlePeriod:buildPeriod;
@@ -110,7 +111,7 @@ public class BattleHandler {
 		for(Entry<Player, Flag> e : player2flag.entrySet()) {
 			Player player = e.getKey();
 			Flag flag = e.getValue();
-			int diff = seconds-flag.getTakenTime();
+			long diff = game.getSeconds()-flag.getTakenTime();
 			System.out.println("BattleHandler.updateFlagCarriers(), "+player.getDisplayName()+" flag "+flag.getTakenTime()+" diff "+diff);
 			if(diff % punishFlagCarrierAfter == 0) {
 				game.notifyPlayers(player.getDisplayName()+" is still holding "+flag.getTeam().getName()+"'s flag, punished he will be.");
@@ -200,7 +201,7 @@ public class BattleHandler {
 	private void takeFlag(Flag f) {
 		f.setTaken(true);
 		f.getBlock().setTypeId(0);
-		f.setTakenTime(seconds);
+		f.setTakenTime(game.getSeconds());
 	}
 
 	private void returnFlag(Player player, Flag careingFlag) {
@@ -230,6 +231,8 @@ public class BattleHandler {
 		Flag flag = returnFlag(player);
 		if(flag != null)
 			game.notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" DIED!!");
+		playersLastDeathLocation.put(player, player.getLocation());
+		game.log("playerDied, lastDeathLocation: ", player.getLocation());
 	}
 
 	public void setPeriod(int buildPeriod, int battlePeriod) {
@@ -252,10 +255,6 @@ public class BattleHandler {
 		return scores;
 	}
 	
-	public int getSeconds() {
-		return seconds;
-	}
-
 	public Team getWinners() {
 		Team winners = null;
 		int winningScore = Integer.MIN_VALUE;
@@ -273,5 +272,9 @@ public class BattleHandler {
 	
 	public GameEndCondition getEndCondition() {
 		return endCondition;
+	}
+
+	public Location getLastDeathLocation(Player player) {
+		return playersLastDeathLocation.get(player);
 	}
 }

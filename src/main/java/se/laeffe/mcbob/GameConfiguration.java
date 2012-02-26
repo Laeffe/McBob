@@ -43,6 +43,16 @@ public class GameConfiguration {
 		return defaultValue;
 	}
 	
+	public long getLong(String path, long defaultValue) {
+		Object property = getProperty(path);
+		if(property != null) {
+			try {
+				return Long.parseLong(String.valueOf(property));
+			} catch(NumberFormatException e) {}
+		}
+		return defaultValue;
+	}
+	
 	public Map<String, Object> getMap(String string, boolean deep) {
 		ConfigurationSection cs = configurationSection.getConfigurationSection(GAMES+string);
 		if(cs == null)

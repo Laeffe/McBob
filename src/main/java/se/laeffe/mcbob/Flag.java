@@ -8,7 +8,7 @@ public class Flag {
 	private Block block;
 	private Team team;
 	private boolean taken;
-	private int takenTime = 0;
+	private long takenTime = 0;
 
 	public Flag(Material material) {
 		this.type = material;
@@ -42,11 +42,11 @@ public class Flag {
 		this.taken = taken;
 	}
 
-	public int getTakenTime() {
+	public long getTakenTime() {
 		return takenTime;
 	}
 
-	public void setTakenTime(int takenTime) {
+	public void setTakenTime(long takenTime) {
 		this.takenTime = takenTime;
 	}
 

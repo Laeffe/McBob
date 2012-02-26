@@ -19,14 +19,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -384,6 +388,23 @@ public class Mcbob extends JavaPlugin {
 			public void onEntityExplodeEvent(EntityExplodeEvent event) {
 				getGame(event).onEntityExplodeEvent(event);
 			}
+			
+			@EventHandler
+			public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
+				getGame(event).onPlayerPickupItemEvent(event);
+			}
+			
+			@EventHandler
+			public void onPlayerInteractEvent(PlayerInteractEvent event) {
+				getGame(event).onPlayerInteractEvent(event);
+			}
+			
+			@EventHandler
+			public void onEntityDamageByEntityEvent (EntityDamageByEntityEvent event) {
+				getGame(event).onEntityDamageByEntityEvent(event);
+			}
+				
+				
 		};
 		getServer().getPluginManager().registerEvents(listener, this);
 	}
