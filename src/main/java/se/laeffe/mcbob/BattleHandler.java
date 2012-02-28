@@ -172,6 +172,10 @@ public class BattleHandler {
 						game.notifyPlayers(player.getName()+" has harbored the flag.");
 						scored(player, team);
 					}
+					else
+					{
+						player.sendMessage(getScoreSummary());	
+					}
 				} else {
 					player.sendMessage("Touched other flag");
 					takeFlag(player, f);
