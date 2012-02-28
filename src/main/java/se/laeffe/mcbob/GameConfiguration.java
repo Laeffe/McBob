@@ -1,14 +1,8 @@
 package se.laeffe.mcbob;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemorySection;
-import org.bukkit.inventory.ItemStack;
 
 public class GameConfiguration {
 

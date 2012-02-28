@@ -4,8 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.text.StrBuilder;
-
 public class GameEndCondition {
 	private int nrOfFlips = 0;
 	private int winningScore = 0;
