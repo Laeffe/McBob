@@ -1,6 +1,7 @@
 package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +22,8 @@ public class BattleHandler {
 	private boolean inBattle = false;
 	private LinkedHashSet<Flag> flags = new LinkedHashSet<Flag>();
 	private ConcurrentHashMap<Player, Flag> player2flag = new ConcurrentHashMap<Player, Flag>();
-	private ConcurrentHashMap<Team, AtomicInteger> scores = new ConcurrentHashMap<Team, AtomicInteger>();
+	private Scores scores               = new Scores();
+
 	private long battleTime             = 18000;
 	private long buildTime              = 6000;
 	private long firstBuildTime         = 12000;
@@ -48,9 +50,7 @@ public class BattleHandler {
 	}
 
 	public void init() {
-		for(Team t : game.getTeamHandler().getTeams()) {
-			scores.put(t, new AtomicInteger(0));
-		}
+		scores.init(game.getTeamHandler().getTeams());
 	}
 
 	public boolean isTeamAreaRestrictionOn() {
@@ -146,7 +146,7 @@ public class BattleHandler {
 	public String getScoreSummary() {
 		StringBuilder sb = new StringBuilder();
 		for(Team t : game.getTeamHandler().getTeams()) {
-			sb.append(t.getName()).append(":").append(scores.get(t).get()).append(" ");
+			sb.append(t.getName()).append(":").append(scores.get(t)).append(" ");
 		}
 		return sb.toString();
 	}
@@ -187,7 +187,7 @@ public class BattleHandler {
 
 	private void scored(Player player, Team team) {
 //		game.notifyPlayers(team.getName()+" scored!");
-		scores.get(team).getAndIncrement();
+		scores.incrementScore(team);
 		if(checkEndConditions())
 			return;
 		notifyScore();
@@ -255,15 +255,19 @@ public class BattleHandler {
 		return nrOfFlips.get();
 	}
 	
-	public ConcurrentHashMap<Team, AtomicInteger> getScores() {
+	public Map<Team, Integer> getScoresAsMap() {
+		return scores.getScoreMap();
+	}
+	
+	public Scores getScores() {
 		return scores;
 	}
 	
 	public Team getWinners() {
 		Team winners = null;
 		int winningScore = Integer.MIN_VALUE;
-		for(Entry<Team, AtomicInteger> s : scores.entrySet()) {
-			int score = s.getValue().get();
+		for(Entry<Team, Integer> s : getScoresAsMap().entrySet()) {
+			int score = s.getValue();
 			if(score > winningScore) {
 				winners = s.getKey();
 				winningScore = score;

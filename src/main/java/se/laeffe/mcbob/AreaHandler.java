@@ -1,13 +1,20 @@
 package se.laeffe.mcbob;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
+
+import se.laeffe.mcbob.observer.Observer;
 
 public class AreaHandler {
 
@@ -120,7 +127,7 @@ public class AreaHandler {
 						new int[]{0,0,0,0,0},
 						new int[]{0,0,0,0,0},
 						new int[]{0,0,0,0,0},
-						new int[]{91,0,0,0,91},
+						new int[]{91,0,-6,0,91},
 				},
 				new int[][]{
 						new int[]{0,0,0,0,0},
@@ -130,6 +137,8 @@ public class AreaHandler {
 						new int[]{0,0,0,0,0},
 				},
 		};
+		
+		final Byte[] specialBlocksData = new Byte[]{null, null, null, null, 0x2, (byte)(modB<0?0x5:0x4) };
 		
 //		Vector dir = center.toVector().subtract(home.toVector()).normalize();		
 		
@@ -151,6 +160,7 @@ public class AreaHandler {
 					int z2 = (z+c*modC);
 					block = world.getBlockAt(x2, y2, z2);
 					if(type < 0) {
+						Byte specialData = specialBlocksData[(-type-1)];
 						switch(type) {
 							case -1:
 								home.setX(x2);
@@ -176,6 +186,14 @@ public class AreaHandler {
 							case -5:
 								type = Material.FURNACE.getId();
 								break;
+							case -6:
+								type = Material.WALL_SIGN.getId();
+								createScoreSignUpdater(team, block);
+								break;
+						}
+						
+						if(specialData != null) {
+							block.setData(specialData);
 						}
 					}
 					
@@ -189,4 +207,30 @@ public class AreaHandler {
 		return home;
 	}
 
+	private void createScoreSignUpdater(final Team homeTeam, final Block block) {
+		final BattleHandler bh = game.getBattleHandler();
+		bh.getScores().addObserver(new Observer<Scores>() {
+			@Override
+			public void update(Scores s) {
+				Map<Team, Integer> scoresAsMap = bh.getScoresAsMap();
+				StringBuilder sb = new StringBuilder();
+				sb.append(scoresAsMap.get(homeTeam));
+				for(Entry<Team, Integer> entry : scoresAsMap.entrySet()) {
+					if(entry.getKey() != homeTeam) {
+						sb.append("-").append(entry.getValue());
+					}
+				}
+				
+				BlockState state = block.getState();
+				if(state instanceof Sign) {
+					Sign sign = (Sign) state;
+					sign.setLine(0, "Score");
+					sign.setLine(2, sb.toString());
+				} else {
+					game.log("The sign block is not a sign >_<");
+				}
+			}
+		});
+	}
+	
 }

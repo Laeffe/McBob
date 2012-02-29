@@ -2,7 +2,6 @@ package se.laeffe.mcbob;
 
 import java.lang.ref.WeakReference;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameEndCondition {
 	private int nrOfFlips = 0;
@@ -27,8 +26,8 @@ public class GameEndCondition {
 		}
 		
 		if(winningScore > 0) {
-			for(Entry<Team, AtomicInteger> s : bh.getScores().entrySet()) {
-				if(s.getValue().get() >= winningScore) {
+			for(Entry<Team, Integer> s : bh.getScoresAsMap().entrySet()) {
+				if(s.getValue() >= winningScore) {
 					getGame().endGame("winning score achieved");
 					return true;
 				}
@@ -37,8 +36,8 @@ public class GameEndCondition {
 
 		if(maxScore > 0) {
 			int scoreSum = 0;
-			for(AtomicInteger s : bh.getScores().values()) {
-				scoreSum += s.get();
+			for(Integer s : bh.getScoresAsMap().values()) {
+				scoreSum += s;
 			}
 			if(scoreSum >= maxScore) {
 				getGame().endGame("max score achieved");

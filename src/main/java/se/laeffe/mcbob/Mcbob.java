@@ -401,8 +401,6 @@ public class Mcbob extends JavaPlugin {
 			public void onEntityDamageByEntityEvent (EntityDamageByEntityEvent event) {
 				getGame(event).onEntityDamageByEntityEvent(event);
 			}
-				
-				
 		};
 		getServer().getPluginManager().registerEvents(listener, this);
 	}

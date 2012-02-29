@@ -380,7 +380,6 @@ public class Game extends AbstractGame {
 
 	public void tickPerSecond() {
 		seconds.incrementAndGet();
-		System.out.println("Game.tickPerSecond(), "+seconds.get());
 		battleHandler.tickPerSecond();
 		teamHandler.tickPerSecond();
 	}
