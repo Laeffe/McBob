@@ -143,10 +143,6 @@ public class TeamHandler {
 		game.getBattleHandler().playerQuitTeam(player);
 		return oldTeam;
 	}
-
-	public Team getPlayersTeam(Player player) {
-		return player2team.get(player);
-	}
 	
 	public Set<Player> getPlayers() {
 		return player2team.keySet();

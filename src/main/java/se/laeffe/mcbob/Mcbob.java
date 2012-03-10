@@ -105,7 +105,7 @@ public class Mcbob extends JavaPlugin {
 		return getGame(world);
 	}
 	
-	public AbstractGame getGame(CommandSender sender, String[] args) {
+	public AbstractGame getGame(CommandSender sender) {
 		if(sender instanceof Player)
 			return getGame((Player)sender);
 		//FIXME Add support to specify game name or something like that.
@@ -116,42 +116,42 @@ public class Mcbob extends JavaPlugin {
 		getCommand("chteam").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdChangeTeam(sender, args);
+				return getGame(sender).cmdChangeTeam(sender, args);
 			}
 		});
 
 		getCommand("teamhome").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdTeamHome(sender);
+				return getGame(sender).cmdTeamHome(sender);
 			}
 		});
 		
 		getCommand("battle").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdBattle(sender, args);
+				return getGame(sender).cmdBattle(sender, args);
 			}
 		});
 
 		getCommand("setperiod").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdSetPeriod(sender, args);
+				return getGame(sender).cmdSetPeriod(sender, args);
 			}
 		});
 		
 		getCommand("settime").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdSetTime(sender, args);
+				return getGame(sender).cmdSetTime(sender, args);
 			}
 		});
 		
 		getCommand("rebuildbases").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-				return getGame(sender, args).cmdRebuildBases();
+				return getGame(sender).cmdRebuildBases();
 			}
 		});
 		
@@ -238,6 +238,7 @@ public class Mcbob extends JavaPlugin {
 				}
 			}
 		});
+		
 		getCommand("reloadconfig").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

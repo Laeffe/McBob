@@ -162,7 +162,7 @@ public class BattleHandler {
 			}
 			
 			Player player = event.getPlayer();
-			Team team = game.getTeamHandler().getPlayersTeam(player);
+			Team team = game.getTeamHandler().getTeam(player);
 			if(!f.isTaken()) {
 				if(f.getTeam() == team) {
 					player.sendMessage("Touched your flag");
