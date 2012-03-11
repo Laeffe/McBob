@@ -27,43 +27,43 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class Game extends AbstractGame {
-	private TeamHandler teamHandler;
-	private AreaHandler areaHandler;
-	private BuildHandler buildHandler;
-	private BattleHandler battleHandler;
-	private final String name;
-	private final World world;
-	private volatile boolean active = false;
-	private GameConfiguration gameConfiguration = null;
-	private AtomicLong seconds = new AtomicLong(0);
+	private TeamHandler			teamHandler;
+	private AreaHandler			areaHandler;
+	private BuildHandler		buildHandler;
+	private BattleHandler		battleHandler;
+	private final String		name;
+	private final World			world;
+	private volatile boolean	active				= false;
+	private GameConfiguration	gameConfiguration	= null;
+	private AtomicLong			seconds				= new AtomicLong(0);
 
 	public Game(Mcbob mcbob, String name, World world) {
 		super(mcbob);
 		this.name = name;
 		this.world = world;
 	}
-	
+
 	public void deactivate() {
 		active = false;
 	}
-	
+
 	@Override
 	public boolean isActive() {
 		return active;
 	}
-	
+
 	@Override
 	public void init() {
 		battleHandler = new BattleHandler(this);
 		buildHandler = new BuildHandler(this);
 		areaHandler = new AreaHandler(this);
 		teamHandler = new TeamHandler(this);
-		
+
 		areaHandler.init();
 		teamHandler.init();
 		battleHandler.init();
 	}
-	
+
 	public void startGame() {
 		active = true;
 		notifyPlayers(getBattleHandler().getEndCondition().getEndConditionSummary());
@@ -74,18 +74,15 @@ public class Game extends AbstractGame {
 		deactivate();
 		Team winners = getBattleHandler().getWinners();
 		String scoreSummary = getBattleHandler().getScoreSummary();
-		if(winners != null)
-		{
-			notifyPlayers("All your base are belong to team :"+winners.getName()+"!!! (yes, they won!)");
-			notifyPlayers("The winning score was, "+scoreSummary);
-		}
-		else
-		{
+		if(winners != null) {
+			notifyPlayers("All your base are belong to team :" + winners.getName() + "!!! (yes, they won!)");
+			notifyPlayers("The winning score was, " + scoreSummary);
+		} else {
 			notifyPlayers("All your sucking is a equilibrium.. (there was a tie)");
-			notifyPlayers("The score was, "+scoreSummary);
+			notifyPlayers("The score was, " + scoreSummary);
 		}
 
-		notifyPlayers("(End condition '"+string+"')");
+		notifyPlayers("(End condition '" + string + "')");
 		log(string);
 		return mcbob.removeGame(this);
 	}
@@ -112,14 +109,14 @@ public class Game extends AbstractGame {
 
 	@Override
 	public void onPlayerMove(PlayerMoveEvent event) {
-//		log(event);
-//		teamHandler.onPlayerMove(event);
-//		if(!event.isCancelled()) {
-//			return;
-//		}
+		// log(event);
+		// teamHandler.onPlayerMove(event);
+		// if(!event.isCancelled()) {
+		// return;
+		// }
 		areaHandler.onPlayerMove(event);
 	}
-	
+
 	@Override
 	public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
 		log(event);
@@ -158,17 +155,17 @@ public class Game extends AbstractGame {
 		}
 		battleHandler.onBlockDamage(event);
 	}
-	
+
 	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
 		log(event);
 		Entity entity = event.getEntity();
-		if (entity instanceof Player) {
-			Player player = (Player) entity;
+		if(entity instanceof Player) {
+			Player player = (Player)entity;
 			getBattleHandler().playerDied(player);
 		}
 	}
-	
+
 	@Override
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		if(!teamHandler.checkIfPlayerIsInRespawn(event.getPlayer())) {
@@ -176,24 +173,24 @@ public class Game extends AbstractGame {
 			return;
 		}
 	}
-	
+
 	@Override
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {
 		log(event);
 		buildHandler.onEntityExplodeEvent(event);
 	}
-	
+
 	@Override
 	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
 		log(event);
 		Entity damager = event.getDamager();
-		if(damager instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player) damager)) {
+		if(damager instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player)damager)) {
 			event.setCancelled(true);
 			return;
 		}
 
 		Entity entity = event.getEntity();
-		if(entity instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player) entity)) {
+		if(entity instanceof Player && !teamHandler.checkIfPlayerIsInRespawn((Player)entity)) {
 			event.setCancelled(true);
 			return;
 		}
@@ -206,7 +203,6 @@ public class Game extends AbstractGame {
 		return gameConfiguration;
 	}
 
-	
 	@Override
 	public TeamHandler getTeamHandler() {
 		return teamHandler;
@@ -234,7 +230,7 @@ public class Game extends AbstractGame {
 			System.out.println("Game.notifyPlayers(), No players to notify.");
 			return;
 		}
-		
+
 		for(Player p : players) {
 			p.sendMessage(string);
 		}
@@ -254,20 +250,20 @@ public class Game extends AbstractGame {
 	public Mcbob getMcbob() {
 		return mcbob;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public boolean cmdSetPeriod(CommandSender sender, String[] args) {
-		if (args.length >= 1) {
+		if(args.length >= 1) {
 			Integer buildPeriod = getInt(args, 0);
 			Integer battlePeriod = getInt(args, 1);
 			if(buildPeriod != null) {
 				if(battlePeriod == null)
 					battlePeriod = buildPeriod;
-				
+
 				getBattleHandler().setPeriod(buildPeriod, battlePeriod);
 				return true;
 			}
@@ -279,13 +275,13 @@ public class Game extends AbstractGame {
 
 	@Override
 	public boolean cmdSetTime(CommandSender sender, String[] args) {
-		if (args.length >= 1) {
-			Integer buildTime  = getInt(args, 0);
+		if(args.length >= 1) {
+			Integer buildTime = getInt(args, 0);
 			Integer battleTime = getInt(args, 1);
 			if(buildTime != null) {
 				if(battleTime == null)
 					battleTime = buildTime;
-				
+
 				getBattleHandler().setTime(buildTime, battleTime);
 				return true;
 			}
@@ -298,7 +294,7 @@ public class Game extends AbstractGame {
 	@Override
 	public boolean cmdBattle(CommandSender sender, String[] args) {
 		boolean state;
-		if (args.length >= 1) {
+		if(args.length >= 1) {
 			state = Boolean.parseBoolean(args[0]);
 		} else {
 			state = !battleHandler.isBattle();
@@ -309,15 +305,15 @@ public class Game extends AbstractGame {
 
 	@Override
 	public boolean cmdTeamHome(CommandSender sender) {
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
+		if(sender instanceof Player) {
+			Player player = (Player)sender;
 			Team team = teamHandler.getTeam(player);
 			Location home = team.getHome();
 			player.teleport(home);
-			//If player teleports home while carrying the flag, return it.
+			// If player teleports home while carrying the flag, return it.
 			Flag flag = battleHandler.returnFlag(player);
 			if(flag != null)
-				notifyPlayers(flag.getTeam().getName()+"'s flag returned since "+player.getDisplayName()+" teleported home.");
+				notifyPlayers(flag.getTeam().getName() + "'s flag returned since " + player.getDisplayName() + " teleported home.");
 			return true;
 		}
 		return false;
@@ -327,21 +323,21 @@ public class Game extends AbstractGame {
 	public boolean cmdChangeTeam(CommandSender sender, String[] args) {
 		String teamName = null;
 		String playerName = null;
-		if (args.length >= 1)
+		if(args.length >= 1)
 			teamName = args[0];
-		if (args.length >= 2)
+		if(args.length >= 2)
 			playerName = args[1];
 
 		Team team = null;
-		if (teamName != null) {
+		if(teamName != null) {
 			team = teamHandler.getTeam(teamName);
 			if(team == null) {
-				sender.sendMessage("Sorry but '"+teamName+"' does not exist.");
+				sender.sendMessage("Sorry but '" + teamName + "' does not exist.");
 				return false;
 			}
 		} else {
-			if (sender instanceof Player) {
-				Player player = (Player) sender;
+			if(sender instanceof Player) {
+				Player player = (Player)sender;
 				for(Team t : teamHandler.getTeams()) {
 					if(!t.contains(player)) {
 						team = t;
@@ -355,15 +351,15 @@ public class Game extends AbstractGame {
 		}
 
 		Player player;
-		if (playerName != null)
+		if(playerName != null)
 			player = getServer().getPlayer(playerName);
-		else if (sender instanceof Player) {
-			player = (Player) sender;
+		else if(sender instanceof Player) {
+			player = (Player)sender;
 		} else {
 			return false;
 		}
 
-		if (player != null) {
+		if(player != null) {
 			teamHandler.changeTeam(player, team);
 		}
 		return true;
@@ -389,17 +385,14 @@ public class Game extends AbstractGame {
 		String chatWithAllIndicator = getMcbob().getConfig().getString("chatisolation.chatWithAllIndicator", "!");
 		event.getRecipients().clear();
 		Collection<Player> players;
-		if(event.getMessage().startsWith(chatWithAllIndicator))
-		{
+		if(event.getMessage().startsWith(chatWithAllIndicator)) {
 			players = getTeamHandler().getPlayers();
-		}
-		else
-		{
+		} else {
 			players = getTeamHandler().getTeam(event.getPlayer()).getPlayers();
 		}
 		event.getRecipients().addAll(players);
 	}
-	
+
 	@Override
 	public long getSeconds() {
 		return seconds.get();

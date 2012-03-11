@@ -20,8 +20,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 public abstract class AbstractGame {
-	protected final Mcbob mcbob;
-	
+	protected final Mcbob	mcbob;
+
 	public AbstractGame(Mcbob mcbob) {
 		this.mcbob = mcbob;
 	}
@@ -76,12 +76,12 @@ public abstract class AbstractGame {
 
 	public abstract boolean isActive();
 
-	public void log(Object...msg) {
+	public void log(Object... msg) {
 		String calledFrom = "(unknown)";
 		StackTraceElement[] stackTrace = new Exception().getStackTrace();
-		if(stackTrace.length>1)
-			calledFrom = stackTrace[1].getMethodName()+"()";
-		
+		if(stackTrace.length > 1)
+			calledFrom = stackTrace[1].getMethodName() + "()";
+
 		StringBuilder sb = new StringBuilder(">> ").append(getName()).append(", ").append(calledFrom).append(" << ");
 		for(Object m : msg) {
 			if(m instanceof BlockEvent)
@@ -102,7 +102,8 @@ public abstract class AbstractGame {
 
 	public abstract void onPlayerChat(PlayerChatEvent event);
 
-	public void onEntityExplodeEvent(EntityExplodeEvent event) {}
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+	}
 
 	public void hidePlayer(Player player) {
 		for(Player other : getServer().getOnlinePlayers()) {
@@ -125,5 +126,5 @@ public abstract class AbstractGame {
 	public abstract void onPlayerPickupItemEvent(PlayerPickupItemEvent event);
 
 	public abstract void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event);
-	
+
 }

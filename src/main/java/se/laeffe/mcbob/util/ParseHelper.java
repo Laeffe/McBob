@@ -5,7 +5,8 @@ public class ParseHelper {
 		if(args.length > i) {
 			try {
 				return Integer.parseInt(args[i]);
-			} catch (NumberFormatException e) {}
+			} catch(NumberFormatException e) {
+			}
 		}
 		return null;
 	}

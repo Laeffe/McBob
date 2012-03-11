@@ -23,7 +23,7 @@ public class NoGame extends AbstractGame {
 	public NoGame(Mcbob mcbob) {
 		super(mcbob);
 	}
-	
+
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
@@ -174,7 +174,7 @@ public class NoGame extends AbstractGame {
 	@Override
 	public void onEntityDeath(EntityDeathEvent event) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -189,7 +189,7 @@ public class NoGame extends AbstractGame {
 			event.getRecipients().remove(p);
 		}
 	}
-	
+
 	private boolean allowBuild() {
 		return mcbob.getConfig().getBoolean("nogame.allowbuild");
 	}
@@ -217,7 +217,7 @@ public class NoGame extends AbstractGame {
 		if(!allowBuild()) {
 			Entity damager = event.getDamager();
 			if(damager instanceof Player) {
-				Player player = (Player) damager;
+				Player player = (Player)damager;
 				player.sendMessage("You are not allowed to build outside of a ongoing Game");
 				event.setCancelled(true);
 			}

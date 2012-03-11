@@ -14,8 +14,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class BuildHandler {
 
-	private AbstractGame game;
-	private LinkedHashSet<Cuboid> nobuilds = new LinkedHashSet<Cuboid>();
+	private AbstractGame			game;
+	private LinkedHashSet<Cuboid>	nobuilds	= new LinkedHashSet<Cuboid>();
 
 	public BuildHandler(AbstractGame game) {
 		this.game = game;
@@ -36,7 +36,7 @@ public class BuildHandler {
 
 		System.out.println("BuildHandler.onBlockBreak()");
 	}
-	
+
 	public void onBlockPlace(BlockPlaceEvent event) {
 		boolean cancel = false;
 		if(!game.getBattleHandler().isBuildingAllowed()) {
@@ -49,14 +49,14 @@ public class BuildHandler {
 		}
 
 		event.setCancelled(cancel);
-		
+
 		System.out.println("BuildHandler.onBlockPlace()");
 	}
 
 	private boolean isNoBuild(Location location) {
 		for(Cuboid e : nobuilds) {
 			if(e.isWithin(location)) {
-				System.out.println("Can not place a block there. "+location);
+				System.out.println("Can not place a block there. " + location);
 				return true;
 			}
 		}
@@ -76,7 +76,7 @@ public class BuildHandler {
 				blockStates.add(state);
 			}
 		}
-		
+
 		int time = 10;
 		for(final BlockState bs : blockStates) {
 			game.getMcbob().scheduleSyncDelayedTask(new Runnable() {
@@ -87,7 +87,7 @@ public class BuildHandler {
 					block.setData(bs.getRawData());
 				}
 			}, time);
-			time+=5;
+			time += 5;
 		}
 	}
 }

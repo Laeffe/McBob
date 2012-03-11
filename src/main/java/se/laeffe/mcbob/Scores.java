@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import se.laeffe.mcbob.observer.AbstractObservable;
 
 public class Scores extends AbstractObservable {
-	private ConcurrentHashMap<Team, AtomicInteger> scores = new ConcurrentHashMap<Team, AtomicInteger>();
+	private ConcurrentHashMap<Team, AtomicInteger>	scores	= new ConcurrentHashMap<Team, AtomicInteger>();
 
 	public void init(Collection<Team> teams) {
 		for(Team t : teams) {
@@ -20,7 +20,9 @@ public class Scores extends AbstractObservable {
 	}
 
 	/**
-	 * Will return the score for a team, or -1 if the team is non existing in the score table.
+	 * Will return the score for a team, or -1 if the team is non existing in
+	 * the score table.
+	 * 
 	 * @param t
 	 * @return
 	 */
@@ -33,7 +35,9 @@ public class Scores extends AbstractObservable {
 	}
 
 	/**
-	 * Will increment the score for a team, and return the new score, or -1 if the team is missing.
+	 * Will increment the score for a team, and return the new score, or -1 if
+	 * the team is missing.
+	 * 
 	 * @param team
 	 * @return
 	 */
@@ -48,7 +52,7 @@ public class Scores extends AbstractObservable {
 	}
 
 	public Map<Team, Integer> getScoreMap() {
-		HashMap<Team,Integer> map = new HashMap<Team, Integer>();
+		HashMap<Team, Integer> map = new HashMap<Team, Integer>();
 		for(Entry<Team, AtomicInteger> entry : scores.entrySet()) {
 			map.put(entry.getKey(), entry.getValue().get());
 		}

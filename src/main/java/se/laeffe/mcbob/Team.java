@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Team {
-	LinkedHashSet<Player> players = new LinkedHashSet<Player>();
-	String name = "";
-	private Flag flag;
-	private Chest chest;
-	private Location home;
-	private final Vector locationModifier;
-	
+	LinkedHashSet<Player>	players	= new LinkedHashSet<Player>();
+	String					name	= "";
+	private Flag			flag;
+	private Chest			chest;
+	private Location		home;
+	private final Vector	locationModifier;
+
 	public Team(String name, Flag flag, Vector locationModifier) {
 		this.name = name;
 		this.flag = flag;
@@ -57,20 +57,20 @@ public class Team {
 	public void setHome(Location teamHome) {
 		this.home = teamHome;
 	}
-	
+
 	public Location getHome() {
 		return home;
 	}
-	
+
 	public Vector getLocationModifier() {
 		return locationModifier;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Team["+name+"]";
+		return "Team[" + name + "]";
 	}
-	
+
 	public LinkedHashSet<Player> getPlayers() {
 		return players;
 	}

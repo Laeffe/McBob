@@ -4,11 +4,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class Flag {
-	private Material type;
-	private Block block;
-	private Team team;
-	private boolean taken;
-	private long takenTime = 0;
+	private Material	type;
+	private Block		block;
+	private Team		team;
+	private boolean		taken;
+	private long		takenTime	= 0;
 
 	public Flag(Material material) {
 		this.type = material;

@@ -4,11 +4,11 @@ import java.lang.ref.WeakReference;
 import java.util.Map.Entry;
 
 public class GameEndCondition {
-	private int nrOfFlips = 0;
-	private int winningScore = 0;
-	private int maxScore = 0;
-	private WeakReference<AbstractGame> weakGameRef;
-	private int maxSeconds;
+	private int							nrOfFlips		= 0;
+	private int							winningScore	= 0;
+	private int							maxScore		= 0;
+	private WeakReference<AbstractGame>	weakGameRef;
+	private int							maxSeconds;
 
 	public GameEndCondition(GameConfiguration cfg, AbstractGame game) {
 		weakGameRef = new WeakReference<AbstractGame>(game);
@@ -24,7 +24,7 @@ public class GameEndCondition {
 			getGame().endGame("no. of state flips achieved");
 			return true;
 		}
-		
+
 		if(winningScore > 0) {
 			for(Entry<Team, Integer> s : bh.getScoresAsMap().entrySet()) {
 				if(s.getValue() >= winningScore) {
@@ -44,7 +44,7 @@ public class GameEndCondition {
 				return true;
 			}
 		}
-		
+
 		if(maxSeconds > 0) {
 			if(getGame().getSeconds() >= maxSeconds) {
 				getGame().endGame("max seconds achieved");
@@ -53,24 +53,28 @@ public class GameEndCondition {
 		}
 		return false;
 	}
-	
+
 	public String getEndConditionSummary() {
 		StringBuilder sb = new StringBuilder("This game ends when; ");
 		int i = 0;
 		if(nrOfFlips > 0) {
-			if(i++>0) sb.append(" or "); 
+			if(i++ > 0)
+				sb.append(" or ");
 			sb.append("the mode has flipped from building to battle: ").append(nrOfFlips).append(" times");
 		}
 		if(winningScore > 0) {
-			if(i++>0) sb.append(" or "); 
+			if(i++ > 0)
+				sb.append(" or ");
 			sb.append("a team reaches a score of: ").append(winningScore);
 		}
-		if(maxScore>0){
-			if(i>0) sb.append(" or "); 
+		if(maxScore > 0) {
+			if(i > 0)
+				sb.append(" or ");
 			sb.append("the maximum score among the teams are: ").append(maxScore);
 		}
-		if(maxSeconds>0) {
-			if(i>0) sb.append(" or "); 
+		if(maxSeconds > 0) {
+			if(i > 0)
+				sb.append(" or ");
 			sb.append("the play time reaches: ").append(maxSeconds).append(" seconds");
 		}
 		return sb.toString();

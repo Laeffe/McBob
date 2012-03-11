@@ -34,12 +34,12 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Mcbob extends JavaPlugin {
-	private ConcurrentHashMap<String, Game> games         = new ConcurrentHashMap<String, Game>();
-	private ConcurrentHashMap<World, Game>  gamesInWorlds = new ConcurrentHashMap<World,  Game>();
-	private ConcurrentHashMap<Player, Game> player2game   = new ConcurrentHashMap<Player, Game>();
+	private ConcurrentHashMap<String, Game>	games			= new ConcurrentHashMap<String, Game>();
+	private ConcurrentHashMap<World, Game>	gamesInWorlds	= new ConcurrentHashMap<World, Game>();
+	private ConcurrentHashMap<Player, Game>	player2game		= new ConcurrentHashMap<Player, Game>();
 
-	private AbstractGame noGame = new NoGame(this);
-	
+	private AbstractGame					noGame			= new NoGame(this);
+
 	@Override
 	public void onDisable() {
 		System.out.println("Mcbob.onDisable()");
@@ -60,9 +60,9 @@ public class Mcbob extends JavaPlugin {
 			}
 		}, 1, 20);
 	}
-	
+
 	protected void updateGameTicks() {
-		for(Game game : games.values()){
+		for(Game game : games.values()) {
 			game.tickPerSecond();
 		}
 	}
@@ -70,27 +70,27 @@ public class Mcbob extends JavaPlugin {
 	public AbstractGame getGame(Player player) {
 		if(player == null)
 			return noGame;
-		
+
 		AbstractGame game = player2game.get(player);
 		if(game == null || !game.isActive())
 			return noGame;
 		return game;
 	}
-	
+
 	private AbstractGame getGame(World world) {
 		if(world == null)
 			return noGame;
-		
+
 		AbstractGame game = gamesInWorlds.get(world);
 		if(game == null || !game.isActive())
 			return noGame;
 		return game;
 	}
-	
+
 	public AbstractGame getGame(PlayerEvent playerEvent) {
 		return getGame(playerEvent.getPlayer());
 	}
-	
+
 	public AbstractGame getGame(BlockEvent blockEvent) {
 		World world = blockEvent.getBlock().getLocation().getWorld();
 		return getGame(world);
@@ -98,17 +98,17 @@ public class Mcbob extends JavaPlugin {
 
 	public AbstractGame getGame(EntityEvent entityEvent) {
 		Entity entity = entityEvent.getEntity();
-		if (entity instanceof Player) {
-			return getGame((Player) entity);
+		if(entity instanceof Player) {
+			return getGame((Player)entity);
 		}
 		World world = entityEvent.getEntity().getLocation().getWorld();
 		return getGame(world);
 	}
-	
+
 	public AbstractGame getGame(CommandSender sender) {
 		if(sender instanceof Player)
 			return getGame((Player)sender);
-		//FIXME Add support to specify game name or something like that.
+		// FIXME Add support to specify game name or something like that.
 		return noGame;
 	}
 
@@ -126,7 +126,7 @@ public class Mcbob extends JavaPlugin {
 				return getGame(sender).cmdTeamHome(sender);
 			}
 		});
-		
+
 		getCommand("battle").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -140,21 +140,21 @@ public class Mcbob extends JavaPlugin {
 				return getGame(sender).cmdSetPeriod(sender, args);
 			}
 		});
-		
+
 		getCommand("settime").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 				return getGame(sender).cmdSetTime(sender, args);
 			}
 		});
-		
+
 		getCommand("rebuildbases").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 				return getGame(sender).cmdRebuildBases();
 			}
 		});
-		
+
 		getCommand("startgame").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -168,31 +168,31 @@ public class Mcbob extends JavaPlugin {
 				return cmdStopGame(sender, args);
 			}
 		});
-		
+
 		getCommand("createworld").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(final CommandSender sender, Command command, String label, String[] args) {
 				if(args.length < 1)
 					return false;
-				
+
 				final String worldName = args[0];
-				
-//				Environment environment = Environment.NORMAL;
-//				if(args.length > 1) {
-//					try {
-//						environment = Environment.valueOf(args[1]);
-//					} catch(IllegalArgumentException e) {
-//						StringBuilder sb = new StringBuilder();
-//						for(Environment env : Environment.values()) {
-//							sb.append(env.toString()).append(",");
-//						}
-//						sender.sendMessage("Not a valid environment, choose from: "+sb.toString());
-//						System.out.println("Mcbob.registerCommands().new CommandExecutor() {...}.onCommand(), "+e);
-//						return false;
-//					}
-//				}
-//				final Environment env = environment;
-				
+
+				// Environment environment = Environment.NORMAL;
+				// if(args.length > 1) {
+				// try {
+				// environment = Environment.valueOf(args[1]);
+				// } catch(IllegalArgumentException e) {
+				// StringBuilder sb = new StringBuilder();
+				// for(Environment env : Environment.values()) {
+				// sb.append(env.toString()).append(",");
+				// }
+				// sender.sendMessage("Not a valid environment, choose from: "+sb.toString());
+				// System.out.println("Mcbob.registerCommands().new CommandExecutor() {...}.onCommand(), "+e);
+				// return false;
+				// }
+				// }
+				// final Environment env = environment;
+
 				getServer().getScheduler().scheduleSyncDelayedTask(Mcbob.this, new Runnable() {
 					public void run() {
 						if(getServer().createWorld(WorldCreator.name(worldName)) == null) {
@@ -202,11 +202,11 @@ public class Mcbob extends JavaPlugin {
 						}
 					}
 				});
-				
+
 				return true;
 			}
 		});
-		
+
 		getCommand("removeworld").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -214,19 +214,19 @@ public class Mcbob extends JavaPlugin {
 				return false;
 			}
 		});
-		
+
 		getCommand("tpworld").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 				World world = null;
 				if(args.length > 0)
 					world = getServer().getWorld(args[0]);
-				
+
 				if(world == null) {
-					sender.sendMessage("World does not exist." +getServer().getWorlds());
+					sender.sendMessage("World does not exist." + getServer().getWorlds());
 					return false;
 				}
-				
+
 				Location spawnLocation = world.getSpawnLocation();
 				if(sender instanceof Player) {
 					sender.sendMessage("Sending you of to the new world");
@@ -238,7 +238,7 @@ public class Mcbob extends JavaPlugin {
 				}
 			}
 		});
-		
+
 		getCommand("reloadconfig").setExecutor(new CommandExecutor() {
 			@Override
 			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -248,55 +248,55 @@ public class Mcbob extends JavaPlugin {
 			}
 		});
 	}
-	
+
 	private boolean cmdStartGame(CommandSender sender, String[] args) {
 		String worldName = null;
-		if(args.length>=1)
+		if(args.length >= 1)
 			worldName = args[0];
-		
+
 		World world = null;
 		if(worldName != null) {
 			world = getServer().getWorld(worldName);
 		} else {
-			if (sender instanceof Player) {
-				world = ((Player) sender).getWorld();
+			if(sender instanceof Player) {
+				world = ((Player)sender).getWorld();
 			}
 		}
-		
+
 		if(world != null) {
 			if(!startGame(world, worldName))
 				sender.sendMessage("Game already in progress.");
 			else
 				return true;
 		}
-		
+
 		return false;
 	}
 
 	private boolean cmdStopGame(CommandSender sender, String[] args) {
 		String worldName = null;
-		if(args.length>=1)
+		if(args.length >= 1)
 			worldName = args[0];
-		
+
 		Game game = null;
 		if(worldName != null) {
 			game = games.get(worldName);
 		} else {
-			if (sender instanceof Player) {
-				World world = ((Player) sender).getWorld();
+			if(sender instanceof Player) {
+				World world = ((Player)sender).getWorld();
 				game = gamesInWorlds.get(world);
 			}
 		}
-		
+
 		if(game != null) {
 			return stopGame(game);
 		} else {
 			sender.sendMessage("No active game in that/this world.");
 		}
-		
+
 		return false;
 	}
-	
+
 	private boolean stopGame(Game game) {
 		return game.endGame("stopped by admin");
 	}
@@ -308,7 +308,7 @@ public class Mcbob extends JavaPlugin {
 			if(iterator.next().getValue() == game)
 				iterator.remove();
 		}
-		System.out.println("Game ended and removed: "+game);
+		System.out.println("Game ended and removed: " + game);
 		return true;
 	}
 
@@ -320,16 +320,16 @@ public class Mcbob extends JavaPlugin {
 			return false;
 		}
 		games.put(game.getName(), game);
-		
+
 		game.init();
-		
+
 		List<Player> players = world.getPlayers();
 		for(Player player : players) {
 			game.onPlayerJoin(new PlayerJoinEvent(player, "Autojoining players in this world"));
 		}
-		
+
 		game.startGame();
-		
+
 		return true;
 	}
 
@@ -340,17 +340,17 @@ public class Mcbob extends JavaPlugin {
 			public void onPlayerJoin(PlayerJoinEvent event) {
 				getGame(event.getPlayer().getWorld()).onPlayerJoin(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerQuit(PlayerQuitEvent event) {
 				getGame(event).onPlayerQuit(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerRespawn(PlayerRespawnEvent event) {
 				getGame(event).onPlayerRespawn(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerMove(PlayerMoveEvent event) {
 				getGame(event).onPlayerMove(event);
@@ -360,12 +360,12 @@ public class Mcbob extends JavaPlugin {
 			public void onBlockBreak(BlockBreakEvent event) {
 				getGame(event.getPlayer()).onBlockBreak(event);
 			}
-			
+
 			@EventHandler
 			public void onBlockPlace(BlockPlaceEvent event) {
 				getGame(event.getPlayer()).onBlockPlace(event);
 			}
-			
+
 			@EventHandler
 			public void onBlockDamage(BlockDamageEvent event) {
 				getGame(event.getPlayer()).onBlockDamage(event);
@@ -375,31 +375,31 @@ public class Mcbob extends JavaPlugin {
 			public void onEntityDeath(EntityDeathEvent event) {
 				getGame(event).onEntityDeath(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerChat(PlayerChatEvent event) {
 				if(getConfig().getBoolean("chatisolation.enable")) {
 					getGame(event).onPlayerChat(event);
 				}
 			}
-			
+
 			@EventHandler
 			public void onEntityExplodeEvent(EntityExplodeEvent event) {
 				getGame(event).onEntityExplodeEvent(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
 				getGame(event).onPlayerPickupItemEvent(event);
 			}
-			
+
 			@EventHandler
 			public void onPlayerInteractEvent(PlayerInteractEvent event) {
 				getGame(event).onPlayerInteractEvent(event);
 			}
-			
+
 			@EventHandler
-			public void onEntityDamageByEntityEvent (EntityDamageByEntityEvent event) {
+			public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
 				getGame(event).onEntityDamageByEntityEvent(event);
 			}
 		};
@@ -423,7 +423,7 @@ public class Mcbob extends JavaPlugin {
 	public GameConfiguration getGameConfiguration(String name) {
 		return new GameConfiguration(name, getConfig());
 	}
-	
+
 	public ConcurrentHashMap<Player, Game> getPlayer2game() {
 		return player2game;
 	}

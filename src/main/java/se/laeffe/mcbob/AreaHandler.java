@@ -18,19 +18,19 @@ import se.laeffe.mcbob.observer.Observer;
 
 public class AreaHandler {
 
-	private AbstractGame game;
-	private int radius = 100;
-	private Location center;
-	private int distanceToBase = 40;
+	private AbstractGame	game;
+	private int				radius			= 100;
+	private Location		center;
+	private int				distanceToBase	= 40;
 
 	public AreaHandler(AbstractGame game) {
 		this.game = game;
 		GameConfiguration cfg = game.getConfiguration();
-		
-		radius         = cfg.getInt("radius", radius);
+
+		radius = cfg.getInt("radius", radius);
 		distanceToBase = cfg.getInt("distance", distanceToBase);
 	}
-	
+
 	public void init() {
 		center = game.getWorld().getSpawnLocation();
 		initCenterMarker();
@@ -38,42 +38,42 @@ public class AreaHandler {
 
 	private void initCenterMarker() {
 		int x = center.getBlockX();
-		int y = center.getBlockY()-1;
+		int y = center.getBlockY() - 1;
 		int z = center.getBlockZ();
 		center.getWorld().getBlockAt(x, y, z);
 	}
 
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Location to = event.getTo();
-//		System.out.println("AreaHandler.onPlayerMove(), x:"+to.getBlockX()+" y:"+to.getBlockY()+" z:"+to.getBlockZ());
+		// System.out.println("AreaHandler.onPlayerMove(), x:"+to.getBlockX()+" y:"+to.getBlockY()+" z:"+to.getBlockZ());
 		Player player = event.getPlayer();
-		
+
 		if(game.getBattleHandler().isTeamAreaRestrictionOn()) {
 			Team team = game.getTeamHandler().getTeam(player);
 			if(!isInsideTeamArea(team, to)) {
-					event.setCancelled(true);
-					if(!isInsideTeamArea(team, event.getFrom())) {
-						Location home = team.getHome();
-						player.sendMessage("You are in hostile territory, teleporting you home.");
-						player.teleport(home);
-					} else {
-						player.sendMessage("You can not leave your team area now.");
-						player.teleport(event.getFrom());
-					}
+				event.setCancelled(true);
+				if(!isInsideTeamArea(team, event.getFrom())) {
+					Location home = team.getHome();
+					player.sendMessage("You are in hostile territory, teleporting you home.");
+					player.teleport(home);
+				} else {
+					player.sendMessage("You can not leave your team area now.");
+					player.teleport(event.getFrom());
+				}
 			}
 		}
-		
+
 		double distanceSquared = to.toVector().distanceSquared(getCenterVector());
-		if(distanceSquared > radius*radius) {
+		if(distanceSquared > radius * radius) {
 			event.setCancelled(true);
 			player.sendMessage("You are leaving the battle area.");
 			player.teleport(event.getFrom());
 		}
-		
+
 	}
 
 	private boolean isInsideTeamArea(Team team, Location loc) {
-		return (loc.getBlockX()-center.getBlockX())*team.getLocationModifier().getX()>0;
+		return (loc.getBlockX() - center.getBlockX()) * team.getLocationModifier().getX() > 0;
 	}
 
 	private Vector getCenterVector() {
@@ -89,10 +89,11 @@ public class AreaHandler {
 	}
 
 	private Location buildBasicBase(Location home, Team team, Vector modifier) {
-		int modA = modifier.getBlockY()<0?-1:1;
-		int modB = modifier.getBlockX()<0?-1:1;
-		int modC = modifier.getBlockZ()<0?-1:1;
-		
+		int modA = modifier.getBlockY() < 0?-1:1;
+		int modB = modifier.getBlockX() < 0?-1:1;
+		int modC = modifier.getBlockZ() < 0?-1:1;
+
+		//@formatter:off
 		final int base[][][] = new int[][][] {
 				new int[][]{
 						new int[]{48,48,48,48,48},
@@ -137,30 +138,36 @@ public class AreaHandler {
 						new int[]{0,0,0,0,0},
 				},
 		};
-		
-		final Byte[] specialBlocksData = new Byte[]{null, null, null, null, 0x2, (byte)(modB<0?0x5:0x4) };
-		
-//		Vector dir = center.toVector().subtract(home.toVector()).normalize();		
-		
+		//@formatter:on
+
+		final Byte[] specialBlocksData = new Byte[] { null, null, null, null, 0x2, (byte)(modB < 0?0x5:0x4) };
+
+		// Vector dir = center.toVector().subtract(home.toVector()).normalize();
+
 		World world = home.getWorld();
-		int x = home.getBlockX()+(-2*modB);
-		int y = home.getBlockY()+(-1*modA);
-		int z = home.getBlockZ()+(-2*modC);
+		int x = home.getBlockX() + (-2 * modB);
+		int y = home.getBlockY() + (-1 * modA);
+		int z = home.getBlockZ() + (-2 * modC);
 		Cuboid nobuild = new Cuboid();
 		Block block;
-//		for(int a=(modA>0?0:base.length-1);(modA>0?a<base.length:a>=0);a+=modA) {
-		for(int a=0;a<base.length;a++) {
-//			for(int b=(modB>0?0:base[a].length-1);(modB>0?b<base[a].length:b>=0);b+=modB) {
-			for(int b=0;b<base[a].length;b++) {
-//				for(int c=(modC>0?0:base[a][b].length-1);(modC>0?c<base[a][b].length:c>=0);c+=modC) {
-				for(int c=0;c<base[a][b].length;c++) {
+		// for(int
+		// a=(modA>0?0:base.length-1);(modA>0?a<base.length:a>=0);a+=modA) {
+		for(int a = 0; a < base.length; a++) {
+			// for(int
+			// b=(modB>0?0:base[a].length-1);(modB>0?b<base[a].length:b>=0);b+=modB)
+			// {
+			for(int b = 0; b < base[a].length; b++) {
+				// for(int
+				// c=(modC>0?0:base[a][b].length-1);(modC>0?c<base[a][b].length:c>=0);c+=modC)
+				// {
+				for(int c = 0; c < base[a][b].length; c++) {
 					int type = base[a][b][c];
-					int x2 = (x+b*modB);
-					int y2 = (y+a*modA);
-					int z2 = (z+c*modC);
+					int x2 = (x + b * modB);
+					int y2 = (y + a * modA);
+					int z2 = (z + c * modC);
 					block = world.getBlockAt(x2, y2, z2);
 					if(type < 0) {
-						Byte specialData = specialBlocksData[(-type-1)];
+						Byte specialData = specialBlocksData[(-type - 1)];
 						switch(type) {
 							case -1:
 								home.setX(x2);
@@ -191,18 +198,18 @@ public class AreaHandler {
 								createScoreSignUpdater(team, block);
 								break;
 						}
-						
+
 						if(specialData != null) {
 							block.setData(specialData);
 						}
 					}
-					
+
 					block.setTypeId(type);
 					nobuild.recordOutter(x2, y2, z2);
 				}
 			}
 		}
-		
+
 		game.getBuildHandler().addNoBuildCuboid(nobuild);
 		return home;
 	}
@@ -220,10 +227,10 @@ public class AreaHandler {
 						sb.append("-").append(entry.getValue());
 					}
 				}
-				
+
 				BlockState state = block.getState();
 				if(state instanceof Sign) {
-					Sign sign = (Sign) state;
+					Sign sign = (Sign)state;
 					sign.setLine(0, "Score");
 					sign.setLine(2, sb.toString());
 				} else {
@@ -232,5 +239,5 @@ public class AreaHandler {
 			}
 		});
 	}
-	
+
 }
