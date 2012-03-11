@@ -57,7 +57,7 @@ public abstract class AbstractGame {
 		sender.sendMessage(sb.toString());
 	}
 
-	private StringBuilder formatMessage(Object[] messageObjects) {
+	protected StringBuilder formatMessage(Object... messageObjects) {
 		StringBuilder sb = new StringBuilder();
 		for(Object message : messageObjects) {
 			sb.append(String.valueOf(message));

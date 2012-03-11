@@ -239,7 +239,8 @@ public class CTFGame extends AbstractGame {
 		}
 	}
 
-	StringBuilder formatMessage(Object... messageObjects) {
+	@Override
+	protected StringBuilder formatMessage(Object... messageObjects) {
 		StringBuilder sb = new StringBuilder();
 		for(Object message : messageObjects) {
 			ChatColor color = ChatColor.GRAY;

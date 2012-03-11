@@ -195,7 +195,7 @@ public class AreaHandler {
 								break;
 							case -6:
 								type = Material.WALL_SIGN.getId();
-								createScoreSignUpdater(team, block);
+								createScoreSignUpdater(team, block, specialData);
 								break;
 						}
 
@@ -214,7 +214,7 @@ public class AreaHandler {
 		return home;
 	}
 
-	private void createScoreSignUpdater(final Team homeTeam, final Block block) {
+	private void createScoreSignUpdater(final Team homeTeam, final Block block, final Byte specialData) {
 		final BattleHandler bh = game.getBattleHandler();
 		bh.getScores().addObserver(new Observer<Scores>() {
 			@Override
@@ -233,6 +233,9 @@ public class AreaHandler {
 					Sign sign = (Sign)state;
 					sign.setLine(0, "Score");
 					sign.setLine(2, sb.toString());
+					if(specialData != null)
+						sign.setRawData(specialData);
+					sign.update(true);
 				} else {
 					game.log("The sign block is not a sign >_<");
 				}
