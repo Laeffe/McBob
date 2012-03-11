@@ -34,11 +34,11 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Mcbob extends JavaPlugin {
-	private ConcurrentHashMap<String, Game>	games			= new ConcurrentHashMap<String, Game>();
-	private ConcurrentHashMap<World, Game>	gamesInWorlds	= new ConcurrentHashMap<World, Game>();
-	private ConcurrentHashMap<Player, Game>	player2game		= new ConcurrentHashMap<Player, Game>();
+	private ConcurrentHashMap<String, CTFGame>	games			= new ConcurrentHashMap<String, CTFGame>();
+	private ConcurrentHashMap<World, CTFGame>	gamesInWorlds	= new ConcurrentHashMap<World, CTFGame>();
+	private ConcurrentHashMap<Player, CTFGame>	player2game		= new ConcurrentHashMap<Player, CTFGame>();
 
-	private AbstractGame					noGame			= new NoGame(this);
+	private AbstractGame						noGame			= new NoGame(this);
 
 	@Override
 	public void onDisable() {
@@ -62,7 +62,7 @@ public class Mcbob extends JavaPlugin {
 	}
 
 	protected void updateGameTicks() {
-		for(Game game : games.values()) {
+		for(CTFGame game : games.values()) {
 			game.tickPerSecond();
 		}
 	}
@@ -247,6 +247,26 @@ public class Mcbob extends JavaPlugin {
 				return true;
 			}
 		});
+
+		getCommand("tpteam").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				if(!(sender instanceof Player)) {
+					return false;
+				}
+
+				Team playersTeam;
+				if(args.length < 1) {
+					playersTeam = getGame(sender).getTeamHandler().getTeam((Player)sender);
+				} else {
+					playersTeam = getGame(sender).getTeamHandler().getTeam(args[0]);
+				}
+
+				((Player)sender).teleport(playersTeam.getHome());
+
+				return true;
+			}
+		});
 	}
 
 	private boolean cmdStartGame(CommandSender sender, String[] args) {
@@ -278,7 +298,7 @@ public class Mcbob extends JavaPlugin {
 		if(args.length >= 1)
 			worldName = args[0];
 
-		Game game = null;
+		AbstractGame game = null;
 		if(worldName != null) {
 			game = games.get(worldName);
 		} else {
@@ -297,14 +317,14 @@ public class Mcbob extends JavaPlugin {
 		return false;
 	}
 
-	private boolean stopGame(Game game) {
+	private boolean stopGame(AbstractGame game) {
 		return game.endGame("stopped by admin");
 	}
 
-	public boolean removeGame(Game game) {
+	public boolean removeGame(AbstractGame game) {
 		gamesInWorlds.remove(game.getWorld());
 		games.remove(game.getName());
-		for(Iterator<Entry<Player, Game>> iterator = player2game.entrySet().iterator(); iterator.hasNext();) {
+		for(Iterator<Entry<Player, CTFGame>> iterator = player2game.entrySet().iterator(); iterator.hasNext();) {
 			if(iterator.next().getValue() == game)
 				iterator.remove();
 		}
@@ -315,7 +335,7 @@ public class Mcbob extends JavaPlugin {
 	private boolean startGame(World world, String worldName) {
 		if(worldName == null)
 			worldName = world.getName();
-		Game game = new Game(this, worldName, world);
+		CTFGame game = new CTFGame(this, worldName, world);
 		if(gamesInWorlds.putIfAbsent(world, game) != null) {
 			return false;
 		}
@@ -412,11 +432,11 @@ public class Mcbob extends JavaPlugin {
 		getServer().broadcastMessage(message);
 	}
 
-	public void playerJoined(Player player, Game game) {
+	public void playerJoined(Player player, CTFGame game) {
 		player2game.put(player, game);
 	}
 
-	public void playerLeft(Player player, Game game) {
+	public void playerLeft(Player player, AbstractGame game) {
 		player2game.remove(player);
 	}
 
@@ -424,7 +444,7 @@ public class Mcbob extends JavaPlugin {
 		return new GameConfiguration(name, getConfig());
 	}
 
-	public ConcurrentHashMap<Player, Game> getPlayer2game() {
+	public ConcurrentHashMap<Player, CTFGame> getPlayer2game() {
 		return player2game;
 	}
 

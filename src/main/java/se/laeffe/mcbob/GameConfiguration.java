@@ -32,8 +32,7 @@ public class GameConfiguration {
 		if(property != null) {
 			try {
 				return Integer.parseInt(String.valueOf(property));
-			} catch(NumberFormatException e) {
-			}
+			} catch(NumberFormatException e) {}
 		}
 		return defaultValue;
 	}
@@ -43,8 +42,7 @@ public class GameConfiguration {
 		if(property != null) {
 			try {
 				return Long.parseLong(String.valueOf(property));
-			} catch(NumberFormatException e) {
-			}
+			} catch(NumberFormatException e) {}
 		}
 		return defaultValue;
 	}

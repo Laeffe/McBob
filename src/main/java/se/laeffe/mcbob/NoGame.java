@@ -58,7 +58,7 @@ public class NoGame extends AbstractGame {
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(!allowBuild()) {
 			Player player = event.getPlayer();
-			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 			event.setCancelled(true);
 		}
 	}
@@ -67,7 +67,7 @@ public class NoGame extends AbstractGame {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if(!allowBuild()) {
 			Player player = event.getPlayer();
-			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 			event.setCancelled(true);
 		}
 	}
@@ -76,7 +76,7 @@ public class NoGame extends AbstractGame {
 	public void onBlockDamage(BlockDamageEvent event) {
 		if(!allowBuild()) {
 			Player player = event.getPlayer();
-			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 			event.setCancelled(true);
 		}
 	}
@@ -109,12 +109,6 @@ public class NoGame extends AbstractGame {
 	public BattleHandler getBattleHandler() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void notifyPlayers(String string) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -198,7 +192,7 @@ public class NoGame extends AbstractGame {
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		if(!allowBuild()) {
 			Player player = event.getPlayer();
-			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 			event.setCancelled(true);
 		}
 	}
@@ -207,7 +201,7 @@ public class NoGame extends AbstractGame {
 	public void onPlayerPickupItemEvent(PlayerPickupItemEvent event) {
 		if(!allowBuild()) {
 			Player player = event.getPlayer();
-			player.sendMessage("You are not allowed to build outside of a ongoing Game");
+			notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 			event.setCancelled(true);
 		}
 	}
@@ -218,10 +212,16 @@ public class NoGame extends AbstractGame {
 			Entity damager = event.getDamager();
 			if(damager instanceof Player) {
 				Player player = (Player)damager;
-				player.sendMessage("You are not allowed to build outside of a ongoing Game");
+				notifyPlayer(player, "You are not allowed to build outside of a ongoing Game");
 				event.setCancelled(true);
 			}
 		}
+	}
+
+	@Override
+	public void notifyPlayers(Object... messageObjects) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

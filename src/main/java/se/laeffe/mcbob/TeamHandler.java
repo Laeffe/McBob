@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
@@ -35,12 +36,12 @@ public class TeamHandler {
 	}
 
 	private void createInitTeams() {
-		createTeam("North", Material.DIAMOND_BLOCK, new Vector(-1, 0, 0));
-		createTeam("South", Material.GOLD_BLOCK, new Vector(1, 0, 0));
+		createTeam("Diamond", Material.DIAMOND_BLOCK, new Vector(-1, 0, 0), ChatColor.AQUA);
+		createTeam("Gold", Material.GOLD_BLOCK, new Vector(1, 0, 0), ChatColor.GOLD);
 	}
 
-	private void createTeam(String name, Material material, Vector modifier) {
-		Team team = new Team(name, createFlag(material), modifier);
+	private void createTeam(String name, Material material, Vector modifier, ChatColor chatcolor) {
+		Team team = new Team(name, createFlag(material), modifier, chatcolor);
 		Location teamHome = game.getAreaHandler().createTeamBase(team);
 		team.setHome(teamHome);
 		addTeam(team);
@@ -74,7 +75,7 @@ public class TeamHandler {
 			}
 		}
 		addPlayer2Team(player, team);
-		game.notifyPlayers(player.getDisplayName() + " joined team " + team.getName());
+		game.notifyPlayers(player, " joined team ", team);
 		player.teleport(team.getHome());
 
 		for(Player playerInRespawn : playerRespawnTime.keySet()) {
@@ -90,7 +91,7 @@ public class TeamHandler {
 			event.setRespawnLocation(lastDeathLocation);
 			game.hidePlayer(player);
 			playerRespawnTime.put(player, game.getSeconds() + respawnTime);
-			player.sendMessage("You will respawn for realz after " + respawnTime + " seconds");
+			game.notifyPlayer(player, "You will respawn for realz after ", respawnTime, " seconds");
 		} else {
 			game.log("Player does not have a lastDeathLocation");
 		}
@@ -113,7 +114,7 @@ public class TeamHandler {
 		Team team = getTeam(player);
 		player.teleport(team.getHome());
 		game.showPlayer(player);
-		player.sendMessage("You have now respawned.");
+		game.notifyPlayer(player, "You have now respawned.");
 	}
 
 	private void addPlayer2Team(Player player, Team team) {
@@ -133,7 +134,7 @@ public class TeamHandler {
 		playerRespawnTime.remove(player);
 		Team oldTeam = removePlayerFromTeam(player);
 		addPlayer2Team(player, team);
-		game.notifyPlayers(player.getDisplayName() + " changed team from " + oldTeam + " to " + team);
+		game.notifyPlayers(player, " changed team from ", oldTeam, " to ", team);
 		player.teleport(team.getHome());
 	}
 
@@ -195,7 +196,7 @@ public class TeamHandler {
 
 	public boolean checkIfPlayerIsInRespawn(Player player) {
 		if(playerRespawnTime.get(player) != null) {
-			player.sendMessage("Sorry, you have not respawnd yet.. for realz!");
+			game.notifyPlayer(player, "Sorry, you have not respawnd yet.. for realz!");
 			return false;
 		}
 		return true;

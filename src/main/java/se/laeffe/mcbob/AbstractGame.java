@@ -52,7 +52,20 @@ public abstract class AbstractGame {
 
 	public abstract BattleHandler getBattleHandler();
 
-	public abstract void notifyPlayers(String string);
+	public void notifyPlayer(CommandSender sender, Object... messageObjects) {
+		StringBuilder sb = formatMessage(messageObjects);
+		sender.sendMessage(sb.toString());
+	}
+
+	private StringBuilder formatMessage(Object[] messageObjects) {
+		StringBuilder sb = new StringBuilder();
+		for(Object message : messageObjects) {
+			sb.append(String.valueOf(message));
+		}
+		return sb;
+	}
+
+	public abstract void notifyPlayers(Object... messageObjects);
 
 	public abstract World getWorld();
 
@@ -102,8 +115,7 @@ public abstract class AbstractGame {
 
 	public abstract void onPlayerChat(PlayerChatEvent event);
 
-	public void onEntityExplodeEvent(EntityExplodeEvent event) {
-	}
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {}
 
 	public void hidePlayer(Player player) {
 		for(Player other : getServer().getOnlinePlayers()) {

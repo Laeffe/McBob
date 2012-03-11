@@ -54,10 +54,10 @@ public class AreaHandler {
 				event.setCancelled(true);
 				if(!isInsideTeamArea(team, event.getFrom())) {
 					Location home = team.getHome();
-					player.sendMessage("You are in hostile territory, teleporting you home.");
+					game.notifyPlayer(player, "You are in hostile territory, teleporting you home.");
 					player.teleport(home);
 				} else {
-					player.sendMessage("You can not leave your team area now.");
+					game.notifyPlayer(player, "You can not leave your team area now.");
 					player.teleport(event.getFrom());
 				}
 			}
@@ -66,7 +66,7 @@ public class AreaHandler {
 		double distanceSquared = to.toVector().distanceSquared(getCenterVector());
 		if(distanceSquared > radius * radius) {
 			event.setCancelled(true);
-			player.sendMessage("You are leaving the battle area.");
+			game.notifyPlayer(player, "You are leaving the battle area.");
 			player.teleport(event.getFrom());
 		}
 
@@ -95,48 +95,48 @@ public class AreaHandler {
 
 		//@formatter:off
 		final int base[][][] = new int[][][] {
-				new int[][]{
-						new int[]{48,48,48,48,48},
-						new int[]{48,48,48,48,48},
-						new int[]{48,48,48,48,48},
-						new int[]{48,48,48,48,48},
-						new int[]{48,48,48,48,48},
+				new int[][] { 
+						new int[] { 48, 48, 48, 48, 48 }, 
+						new int[] { 48, 48, 48, 48, 48 }, 
+						new int[] { 48, 48, 48, 48, 48 },
+						new int[] { 48, 48, 48, 48, 48 }, 
+						new int[] { 48, 48, 48, 48, 48 }, 
+				}, 
+				new int[][] { 
+						new int[] { 85, 0, 0, 0, 85 },
+						new int[] { 0, 0, 0, 0, -5 },
+						new int[] { 0, 0, -1, 0, -4 },
+						new int[] { 0, 0, 0, 0, -3 },
+						new int[] { 85, 0, 85, 0, 85 }, 
 				},
-				new int[][]{
-						new int[]{85,0, 0, 0,85},
-						new int[]{0, 0, 0, 0,-5},
-						new int[]{0, 0,-1, 0,-4},
-						new int[]{0, 0, 0, 0,-3},
-						new int[]{85,0,85, 0,85},
+				new int[][] { 
+						new int[] { 85, 0, 0, 0, 85 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 85, 0, -2, 0, 85 },
 				},
-				new int[][]{
-						new int[]{85,0,0,0,85},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{85,0,-2,0,85},
+				new int[][] {
+						new int[] { 85, 0, 0, 0, 85 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 85, 0, 0, 0, 85 },
 				},
-				new int[][]{
-						new int[]{85,0,0,0,85},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{85,0,0,0,85},
-				},
-				new int[][]{
-						new int[]{91,0,0,0,91},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{91,0,-6,0,91},
-				},
-				new int[][]{
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-						new int[]{0,0,0,0,0},
-				},
+				new int[][] {
+						new int[] { 91, 0, 0, 0, 91 },
+						new int[] { 0, 0, 0, 0, 0 },
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 91, 0, -6, 0, 91 },
+				}, 
+				new int[][] { 
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 0, 0, 0, 0, 0 }, 
+						new int[] { 0, 0, 0, 0, 0 }, 
+				}, 
 		};
 		//@formatter:on
 

@@ -4,21 +4,21 @@ chatisolation:
   enable: true
   chatWithAllIndicator: !
 global:
-  radius: 100
-  distance: 40
-  battlePeriod: 300
-  buildPeriod: 300
-  firstBuildTime: 600
+  radius: 300
+  distance: 50
+  battlePeriod: 600
+  buildPeriod: 600
+  firstBuildTime: 1200
   notificationSeconds: 10
   notifyEvery: 30
   punishflagCarrierAfter: 60
   spawn:
-    respawntime: 30
+    respawntime: 10
     keepxp: true
   endcondition:
     nrOfFlips: 0
-    maxSeconds: 7200
-    winningScore: 5
+    maxSeconds: 3000
+    winningScore: 0
     maxScore: 0
   teamChest:
     all:
@@ -27,27 +27,10 @@ global:
       SULPHUR: 64
       IRON_INGOT: 64
       TORCH: 64
-      EGG: 10
-      TNT: 10
-      FLINT_AND_STEEL: 10
+      EGG: 64
+      SAPLING: 16
     team:
       North:
         STONE: 1
       South:
         gravel: 1
-
-games:
-  world:
-    battlePeriod: 150
-    buildPeriod: 300
-    teamChest:
-      all:
-        LOG: 32
-        COBBLESTONE: 32
-        SULPHUR: 32
-      team:
-        North:
-          STONE: 10
-        South:
-          gravel: 128
-  

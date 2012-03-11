@@ -2,6 +2,7 @@ package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -14,11 +15,13 @@ public class Team {
 	private Chest			chest;
 	private Location		home;
 	private final Vector	locationModifier;
+	private final ChatColor	chatcolor;
 
-	public Team(String name, Flag flag, Vector locationModifier) {
+	public Team(String name, Flag flag, Vector locationModifier, ChatColor chatcolor) {
 		this.name = name;
 		this.flag = flag;
 		this.locationModifier = locationModifier;
+		this.chatcolor = chatcolor;
 		flag.setTeam(this);
 	}
 
@@ -73,5 +76,9 @@ public class Team {
 
 	public LinkedHashSet<Player> getPlayers() {
 		return players;
+	}
+
+	public ChatColor getChatcolor() {
+		return chatcolor;
 	}
 }

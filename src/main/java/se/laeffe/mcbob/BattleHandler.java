@@ -1,6 +1,8 @@
 package se.laeffe.mcbob;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,7 +83,7 @@ public class BattleHandler {
 			} else {
 				long secondsLeft = tickFlip - diff;
 				if(secondsLeft < startToNotifySeconds || secondsLeft % notifyOfFlipEvry == 0) {
-					game.notifyPlayers("There will be " + (inBattle?"peace":"war") + " in " + secondsLeft + "s.");
+					game.notifyPlayers("There will be ", (inBattle?"peace":"war"), " in ", secondsLeft, "s.");
 				}
 			}
 		} else {
@@ -114,7 +116,7 @@ public class BattleHandler {
 			long diff = game.getSeconds() - flag.getTakenTime();
 			System.out.println("BattleHandler.updateFlagCarriers(), " + player.getDisplayName() + " flag " + flag.getTakenTime() + " diff " + diff);
 			if(diff % punishFlagCarrierAfter == 0) {
-				game.notifyPlayers(player.getDisplayName() + " is still holding " + flag.getTeam().getName() + "'s flag, punished he will be.");
+				game.notifyPlayers(player, " is still holding ", flag.getTeam(), "'s flag, punished he will be.");
 				game.getWorld().strikeLightning(player.getLocation());
 			}
 		}
@@ -139,16 +141,19 @@ public class BattleHandler {
 	}
 
 	private void notifyScore() {
-		String scoreSummary = getScoreSummary();
-		game.notifyPlayers("The current score is, " + scoreSummary);
+		List<Object> scoreSummary = getScoreSummary();
+		game.notifyPlayers("The current score is, ", scoreSummary);
 	}
 
-	public String getScoreSummary() {
-		StringBuilder sb = new StringBuilder();
+	public List<Object> getScoreSummary() {
+		List<Object> summary = new LinkedList<Object>();
 		for(Team t : game.getTeamHandler().getTeams()) {
-			sb.append(t.getName()).append(":").append(scores.get(t)).append(" ");
+			summary.add(t);
+			summary.add(":");
+			summary.add(scores.get(t));
+			summary.add(" ");
 		}
-		return sb.toString();
+		return summary;
 	}
 
 	public void addFlag(Flag flag) {
@@ -165,19 +170,19 @@ public class BattleHandler {
 			Team team = game.getTeamHandler().getTeam(player);
 			if(!f.isTaken()) {
 				if(f.getTeam() == team) {
-					player.sendMessage("Touched your flag");
+					game.notifyPlayer(player, "Touched your flag");
 					Flag careingFlag = player2flag.get(player);
 					if(careingFlag != null) {
 						returnFlag(player, careingFlag);
-						game.notifyPlayers(player.getName() + " has harbored the flag.");
+						game.notifyPlayers(player, " has harbored the flag.");
 						scored(player, team);
 					} else {
-						player.sendMessage(getScoreSummary());
+						game.notifyPlayer(player, getScoreSummary());
 					}
 				} else {
-					player.sendMessage("Touched other flag");
+					game.notifyPlayer(player, "Touched other flag");
 					takeFlag(player, f);
-					game.notifyPlayers(player.getName() + " has captured the flag.");
+					game.notifyPlayers(player, " has captured the ", f, " team's flag.");
 				}
 			}
 		}
@@ -226,13 +231,13 @@ public class BattleHandler {
 	public void playerQuitTeam(Player player) {
 		Flag flag = returnFlag(player);
 		if(flag != null)
-			game.notifyPlayers(flag.getTeam().getName() + "'s flag returned since " + player.getDisplayName() + " left the team.");
+			game.notifyPlayers(flag.getTeam(), "'s flag returned since ", player, " left the team.");
 	}
 
 	public void playerDied(Player player) {
 		Flag flag = returnFlag(player);
 		if(flag != null)
-			game.notifyPlayers(flag.getTeam().getName() + "'s flag returned since " + player.getDisplayName() + " DIED!!");
+			game.notifyPlayers(flag.getTeam(), "'s flag returned since ", player, " DIED!!");
 		playersLastDeathLocation.put(player, player.getLocation());
 		game.log("playerDied, lastDeathLocation: ", player.getLocation());
 	}

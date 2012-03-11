@@ -50,3 +50,7 @@ commands:
     description: Reloads config.
     usage: |
            /<command>
+  tpteam:
+    description: Test command, used to teleport to other teams home :D.
+    usage: |
+           /<command> [team]
